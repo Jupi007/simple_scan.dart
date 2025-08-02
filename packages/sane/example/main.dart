@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
 import 'package:sane/sane.dart';
-import 'package:sane/src/isolated_raw_sane.dart';
 
 void main(List<String> args) async {
   Logger.root.level = Level.ALL;
@@ -13,9 +12,8 @@ void main(List<String> args) async {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  final sane = IsolatedRawSane();
+  final sane = Sane();
 
-  await sane.spawn();
   await sane.init();
 
   final devices = await sane.getDevices(localOnly: true);
@@ -61,7 +59,6 @@ void main(List<String> args) async {
   await sane.close(handle);
 
   await sane.exit();
-  await sane.dispose();
 
   Uint8List mergeUint8Lists(List<Uint8List> lists) {
     final totalLength = lists.fold(0, (length, list) => length + list.length);

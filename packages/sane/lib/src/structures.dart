@@ -48,7 +48,7 @@ class SaneDevice {
 
 @immutable
 class SaneHandle {
-  const SaneHandle({required this.deviceName});
+  const SaneHandle(this.deviceName);
   final String deviceName;
 
   @override
@@ -185,11 +185,11 @@ enum SaneOptionInfo {
 
 class SaneOptionResult<T> {
   const SaneOptionResult({
-    required this.result,
+    required this.value,
     required this.infos,
   });
 
-  final T result;
+  final T value;
   final List<SaneOptionInfo> infos;
 }
 
