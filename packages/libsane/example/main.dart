@@ -3,7 +3,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:libsane/sane.dart';
+import 'package:libsane/libsane.dart';
 import 'package:logging/logging.dart';
 
 void main(List<String> args) async {

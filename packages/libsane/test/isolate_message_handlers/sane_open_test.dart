@@ -1,6 +1,6 @@
 import 'dart:ffi' as ffi;
 
-import 'package:libsane/sane.dart';
+import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/isolate/context.dart';
