@@ -20,6 +20,10 @@ import 'package:libsane/src/structures.dart';
 typedef AuthCallback = SaneCredentials Function(String resourceName);
 
 class Sane {
+  factory Sane() => _instance ??= Sane._();
+  Sane._();
+  static Sane? _instance;
+
   SaneIsolate? _isolate;
 
   /// Initializes the SANE library.
