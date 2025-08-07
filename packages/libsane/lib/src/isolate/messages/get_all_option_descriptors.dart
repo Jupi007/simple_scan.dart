@@ -37,12 +37,14 @@ class GetAllOptionDescriptorsMessageHandler
         context.nativeHandles.get(message.handle),
         i,
       );
-      isolateLogger.finest('sane_get_option_descriptor()');
+      isolateLogger.finest('sane_get_option_descriptor($i)');
+      // TODO better logging
 
       if (optionDescriptorPointer == ffi.nullptr) break;
-      optionDescriptors.add(
-        optionDescriptorPointer.ref.toSaneOptionDescriptorWithIndex(i),
-      );
+      final optionDescriptor =
+          optionDescriptorPointer.ref.toSaneOptionDescriptorWithIndex(i);
+      optionDescriptors.add(optionDescriptor);
+      isolateLogger.finest('  -> $optionDescriptor');
     }
 
     return GetAllOptionDescriptorsResponse(optionDescriptors);

@@ -96,7 +96,7 @@ class ControlValueOptionMessageHandler<T>
       infoPointer,
     );
     isolateLogger.finest(
-      'sane_control_option(${message.index}, ${message.action}, ${message.value}) -> ${status.name}',
+      'sane_control_option(${optionDescriptor.name}(${message.index}), ${message.action}, ${message.value}) -> ${status.name}',
     );
 
     status.check();
@@ -124,6 +124,9 @@ class ControlValueOptionMessageHandler<T>
       default:
         throw const SaneInvalidDataException();
     }
+    isolateLogger.finest(
+      '  -> $resultValue, $infos',
+    );
 
     ffi.calloc.free(valuePointer);
     ffi.calloc.free(infoPointer);

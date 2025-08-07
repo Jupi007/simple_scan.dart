@@ -33,7 +33,8 @@ class OpenMessageHandler
 
     try {
       final status = libSane.sane_open(deviceNamePointer, nativeHandlePointer);
-      isolateLogger.finest('sane_open() -> ${status.name}');
+      isolateLogger
+          .finest('sane_open(${message.deviceName}) -> ${status.name}');
 
       status.check();
 

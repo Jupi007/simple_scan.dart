@@ -40,12 +40,12 @@ class GetParametersMessageHandler
         nativeParametersPointer,
       );
       isolateLogger.finest('sane_get_parameters() -> ${status.name}');
-
       status.check();
 
-      return GetParametersResponse(
-        nativeParametersPointer.ref.toSaneParameters(),
-      );
+      final parameters = nativeParametersPointer.ref.toSaneParameters();
+      isolateLogger.finest('  -> $parameters');
+
+      return GetParametersResponse(parameters);
     } finally {
       ffi.calloc.free(nativeParametersPointer);
     }

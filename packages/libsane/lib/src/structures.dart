@@ -44,6 +44,11 @@ class SaneDevice {
   final String vendor;
   final String model;
   final String type;
+
+  @override
+  String toString() {
+    return 'SaneDevice($name, $vendor, $model, $type)';
+  }
 }
 
 @immutable
@@ -83,6 +88,11 @@ class SaneParameters {
   final int pixelsPerLine;
   final int lines;
   final int depth;
+
+  @override
+  String toString() {
+    return 'SaneParameters($format, $lastFrame, $bytesPerLine, $pixelsPerLine, $lines, $depth)';
+  }
 }
 
 enum SaneOptionValueType {
@@ -169,6 +179,11 @@ class SaneOptionDescriptor {
   final int size;
   final List<SaneOptionCapability> capabilities;
   final SaneOptionConstraint? constraint;
+
+  @override
+  String toString() {
+    return 'SaneOptionDescriptor($name, $type, $unit, $capabilities, $constraint)';
+  }
 }
 
 enum SaneControlAction {

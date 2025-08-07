@@ -52,6 +52,7 @@ class Sane {
   /// - [`sane_exit`](https://sane-project.gitlab.io/standard/api.html#sane-exit)
   Future<void> exit() async {
     await _sendMessage(const ExitMessage());
+    _isolate?.kill();
     _isolate = null;
   }
 

@@ -38,15 +38,16 @@ class GetOptionDescriptorMessageHandler
       context.nativeHandles.get(message.handle),
       message.index,
     );
-    isolateLogger.finest('sane_close()');
+    isolateLogger.finest('sane_get_option_descriptor(${message.index})');
 
     if (optionDescriptorPointer == ffi.nullptr) {
       return const GetOptionDescriptorResponse(null);
     }
 
-    return GetOptionDescriptorResponse(
-      optionDescriptorPointer.ref
-          .toSaneOptionDescriptorWithIndex(message.index),
-    );
+    final optionDescriptor = optionDescriptorPointer.ref
+        .toSaneOptionDescriptorWithIndex(message.index);
+    isolateLogger.finest('  -> $optionDescriptor');
+
+    return GetOptionDescriptorResponse(optionDescriptor);
   }
 }

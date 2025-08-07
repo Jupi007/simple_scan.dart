@@ -45,8 +45,9 @@ class GetDevicesMessageHandler
 
       final devices = <SaneDevice>[];
       for (var i = 0; deviceListPointer.value[i] != ffi.nullptr; i++) {
-        final nativeDevice = deviceListPointer.value[i].ref;
-        devices.add(nativeDevice.toSaneDevice());
+        final device = deviceListPointer.value[i].ref.toSaneDevice();
+        devices.add(device);
+        isolateLogger.finest('  -> $device');
       }
 
       return GetDevicesResponse(
