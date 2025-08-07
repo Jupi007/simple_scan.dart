@@ -1,0 +1,8 @@
+name: "LibSane"
+output: "lib/src/bindings_opts.g.dart"
+headers:
+  entry-points:
+    - "/usr/include/sane/saneopts.h"
+macros:
+  rename:
+    "SANE_(.*)": "$1"
