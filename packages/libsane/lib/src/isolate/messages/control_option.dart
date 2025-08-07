@@ -65,29 +65,23 @@ class ControlValueOptionMessageHandler<T>
     }();
 
     if (message.action == SaneControlAction.setValue) {
+      final value = message.value;
       switch (optionType) {
-        case SaneOptionValueType.bool when message.value is bool:
-          (valuePointer as ffi.Pointer<SANE_Bool>).value =
-              message.value.toSaneBool();
+        case SaneOptionValueType.bool when value is bool:
+          (valuePointer as ffi.Pointer<SANE_Bool>).value = value.toSaneBool();
           break;
-
-        case SaneOptionValueType.int when message.value is int:
-          (valuePointer as ffi.Pointer<SANE_Int>).value = message.value;
+        case SaneOptionValueType.int when value is int:
+          (valuePointer as ffi.Pointer<SANE_Int>).value = value;
           break;
-
-        case SaneOptionValueType.fixed when message.value is double:
-          (valuePointer as ffi.Pointer<SANE_Word>).value =
-              message.value.toSaneFixed();
+        case SaneOptionValueType.fixed when value is double:
+          (valuePointer as ffi.Pointer<SANE_Word>).value = value.toSaneFixed();
           break;
-
-        case SaneOptionValueType.string when message.value is String:
+        case SaneOptionValueType.string when value is String:
           (valuePointer as ffi.Pointer<SANE_Char>)
-              .copyStringBytes(message.value, maxLenght: optionSize);
+              .copyStringBytes(value, maxLenght: optionSize);
           break;
-
         case SaneOptionValueType.button:
           break;
-
         case SaneOptionValueType.group:
         default:
           throw const SaneInvalidDataException();
