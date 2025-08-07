@@ -287,12 +287,3 @@ extension SaneCharExtension on ffi.Pointer<SANE_Char> {
     ffi.calloc.free(utf8String);
   }
 }
-
-extension SaneIOModeExtension on SaneIOMode {
-  DartSANE_Word toSaneBool() {
-    return switch (this) {
-      SaneIOMode.blocking => SANE_FALSE,
-      SaneIOMode.nonBlocking => SANE_TRUE,
-    };
-  }
-}

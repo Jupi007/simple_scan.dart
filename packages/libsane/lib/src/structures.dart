@@ -192,8 +192,3 @@ class SaneOptionResult<T> {
   final T value;
   final List<SaneOptionInfo> infos;
 }
-
-enum SaneIOMode {
-  nonBlocking,
-  blocking;
-}
