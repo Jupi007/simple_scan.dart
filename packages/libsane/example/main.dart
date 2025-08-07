@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:libsane/libsane.dart';
+import 'package:libsane/libsaneopts.dart' as saneopts;
 import 'package:logging/logging.dart';
 
 void main(List<String> args) async {
@@ -31,12 +32,12 @@ void main(List<String> args) async {
   final optionDescriptors = await sane.getAllOptionDescriptors(handle);
 
   for (final optionDescriptor in optionDescriptors) {
-    if (optionDescriptor.name == 'mode') {
+    if (optionDescriptor.name == saneopts.NAME_SCAN_MODE) {
       await sane.controlStringOption(
         handle: handle,
         index: optionDescriptor.index,
         action: SaneControlAction.setValue,
-        value: 'Color',
+        value: saneopts.VALUE_SCAN_MODE_COLOR,
       );
       break;
     }

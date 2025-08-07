@@ -256,9 +256,7 @@ class LibSane {
 
 class _SymbolAddresses {
   final LibSane _library;
-
   _SymbolAddresses(this._library);
-
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(SANE_Handle)>>
       get sane_close => _library._sane_closePtr;
 }
