@@ -77,5 +77,5 @@ class _FinalizableUint8Pointer {
   final ffi.Pointer<ffi.Uint8> _ptr;
   final int length;
 
-  Uint8List asTypedList() => _ptr.asTypedList(length);
+  Uint8List asTypedList() => _ptr.asTypedList(length).asUnmodifiableView();
 }
