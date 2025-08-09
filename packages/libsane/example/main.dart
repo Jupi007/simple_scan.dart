@@ -65,5 +65,5 @@ void main(List<String> args) async {
     'P6\n${parameters.pixelsPerLine} ${parameters.lines}\n255\n',
     mode: FileMode.write,
   );
-  file.writeAsBytesSync(bytesBuilder.toBytes(), mode: FileMode.append);
+  file.writeAsBytesSync(bytesBuilder.takeBytes(), mode: FileMode.append);
 }
