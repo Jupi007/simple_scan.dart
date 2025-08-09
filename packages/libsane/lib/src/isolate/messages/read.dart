@@ -54,13 +54,28 @@ class ReadMessageHandler
       }
 
       return ReadResponse(
-        Uint8List.fromList(
-          bufferPointer.cast<ffi.Uint8>().asTypedList(lengthPointer.value),
-        ),
+        _FinalizableUint8Pointer(
+          bufferPointer.cast<ffi.Uint8>(),
+          lengthPointer.value,
+        ).asTypedList(),
       );
     } finally {
       ffi.calloc.free(lengthPointer);
-      ffi.calloc.free(bufferPointer);
     }
   }
+}
+
+class _FinalizableUint8Pointer {
+  _FinalizableUint8Pointer(this._ptr, this.length) {
+    _finalizer.attach(this, _ptr, detach: this);
+  }
+
+  static final _finalizer = Finalizer<ffi.Pointer<ffi.Uint8>>(
+    (ptr) => ffi.calloc.free(ptr),
+  );
+
+  final ffi.Pointer<ffi.Uint8> _ptr;
+  final int length;
+
+  Uint8List asTypedList() => _ptr.asTypedList(length);
 }
