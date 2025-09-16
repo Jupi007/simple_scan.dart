@@ -9,6 +9,11 @@ import 'package:libsane/src/isolate/context.dart';
 import 'package:libsane/src/isolate/isolate.dart';
 import 'package:libsane/src/isolate/logger.dart';
 
+final freePointer = ffi.DynamicLibrary.process()
+    .lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+  'free',
+);
+
 class ReadMessage implements IsolateMessage<ReadResponse> {
   const ReadMessage(this.handle, this.bufferSize);
   final SaneHandle handle;
@@ -35,8 +40,8 @@ class ReadMessageHandler
       );
     }
 
-    final lengthPointer = ffi.calloc<SANE_Int>();
-    final bufferPointer = ffi.calloc<SANE_Byte>(message.bufferSize);
+    final lengthPointer = ffi.malloc<SANE_Int>();
+    final bufferPointer = ffi.malloc<SANE_Byte>(message.bufferSize);
 
     try {
       final status = libSane.sane_read(
@@ -45,7 +50,8 @@ class ReadMessageHandler
         message.bufferSize,
         lengthPointer,
       );
-      isolateLogger.finest('sane_read() -> ${status.name}');
+      isolateLogger
+          .finest('sane_read(${message.bufferSize}) -> ${status.name}');
 
       try {
         status.check();
@@ -54,28 +60,16 @@ class ReadMessageHandler
       }
 
       return ReadResponse(
-        _FinalizableUint8Pointer(
-          bufferPointer.cast<ffi.Uint8>(),
-          lengthPointer.value,
-        ).asTypedList(),
+        bufferPointer
+            .cast<ffi.Uint8>()
+            .asTypedList(
+              lengthPointer.value,
+              finalizer: freePointer,
+            )
+            .asUnmodifiableView(),
       );
     } finally {
-      ffi.calloc.free(lengthPointer);
+      ffi.malloc.free(lengthPointer);
     }
   }
-}
-
-class _FinalizableUint8Pointer {
-  _FinalizableUint8Pointer(this._ptr, this.length) {
-    _finalizer.attach(this, _ptr, detach: this);
-  }
-
-  static final _finalizer = Finalizer<ffi.Pointer<ffi.Uint8>>(
-    (ptr) => ffi.calloc.free(ptr),
-  );
-
-  final ffi.Pointer<ffi.Uint8> _ptr;
-  final int length;
-
-  Uint8List asTypedList() => _ptr.asTypedList(length).asUnmodifiableView();
 }
