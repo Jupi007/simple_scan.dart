@@ -18,19 +18,19 @@ extension LoggerExtension on Logger {
   }
 }
 
-extension CheckNativeSaneStatusExtension on SANE_Status {
-  /// Throws [SaneException] if the status is not [SANE_Status.STATUS_GOOD].
+extension CheckNativeSANEStatusExtension on SANE_Status {
+  /// Throws [SANEException] if the status is not [SANE_Status.STATUS_GOOD].
   void check() {
     if (this != SANE_Status.STATUS_GOOD) {
-      throw SaneException(this);
+      throw SANEException(this);
     }
   }
 }
 
-extension NativeSaneDeviceExtension on SANE_Device {
-  /// Convert native [SANE_Device] to [SaneDevice].
-  SaneDevice toSaneDevice() {
-    return SaneDevice(
+extension NativeSANEDeviceExtension on SANE_Device {
+  /// Convert native [SANE_Device] to [SANEDevice].
+  SANEDevice toSANEDevice() {
+    return SANEDevice(
       name: name.toDartString(),
       vendor: vendor.toDartString(),
       model: model.toDartString(),
@@ -39,24 +39,24 @@ extension NativeSaneDeviceExtension on SANE_Device {
   }
 }
 
-extension NativeSaneFrameFormatExtension on SANE_Frame {
-  /// Convert native [SANE_Frame] to [SaneFrameFormat].
-  SaneFrameFormat toSaneFrameFormat() {
+extension NativeSANEFrameFormatExtension on SANE_Frame {
+  /// Convert native [SANE_Frame] to [SANEFrameFormat].
+  SANEFrameFormat toSANEFrameFormat() {
     return switch (this) {
-      SANE_Frame.FRAME_GRAY => SaneFrameFormat.gray,
-      SANE_Frame.FRAME_RGB => SaneFrameFormat.rgb,
-      SANE_Frame.FRAME_RED => SaneFrameFormat.red,
-      SANE_Frame.FRAME_GREEN => SaneFrameFormat.green,
-      SANE_Frame.FRAME_BLUE => SaneFrameFormat.blue,
+      SANE_Frame.FRAME_GRAY => SANEFrameFormat.gray,
+      SANE_Frame.FRAME_RGB => SANEFrameFormat.rgb,
+      SANE_Frame.FRAME_RED => SANEFrameFormat.red,
+      SANE_Frame.FRAME_GREEN => SANEFrameFormat.green,
+      SANE_Frame.FRAME_BLUE => SANEFrameFormat.blue,
     };
   }
 }
 
-extension NativeSaneParametersExtension on SANE_Parameters {
-  /// Convert native [SANE_Parameters] to [SaneParameters].
-  SaneParameters toSaneParameters() {
-    return SaneParameters(
-      format: format.toSaneFrameFormat(),
+extension NativeSANEParametersExtension on SANE_Parameters {
+  /// Convert native [SANE_Parameters] to [SANEParameters].
+  SANEParameters toSANEParameters() {
+    return SANEParameters(
+      format: format.toSANEFrameFormat(),
       lastFrame: last_frame.toDartBool(),
       bytesPerLine: bytes_per_line,
       pixelsPerLine: pixels_per_line,
@@ -66,93 +66,93 @@ extension NativeSaneParametersExtension on SANE_Parameters {
   }
 }
 
-extension NativeSaneOptionValueTypeExtension on SANE_Value_Type {
-  /// Convert native [SANE_Value_Type] to [SaneOptionValueType].
-  SaneOptionValueType toSaneOptionValueType() {
+extension NativeSANEOptionValueTypeExtension on SANE_Value_Type {
+  /// Convert native [SANE_Value_Type] to [SANEOptionValueType].
+  SANEOptionValueType toSANEOptionValueType() {
     return switch (this) {
-      SANE_Value_Type.TYPE_BOOL => SaneOptionValueType.bool,
-      SANE_Value_Type.TYPE_INT => SaneOptionValueType.int,
-      SANE_Value_Type.TYPE_FIXED => SaneOptionValueType.fixed,
-      SANE_Value_Type.TYPE_STRING => SaneOptionValueType.string,
-      SANE_Value_Type.TYPE_BUTTON => SaneOptionValueType.button,
-      SANE_Value_Type.TYPE_GROUP => SaneOptionValueType.group,
+      SANE_Value_Type.TYPE_BOOL => SANEOptionValueType.bool,
+      SANE_Value_Type.TYPE_INT => SANEOptionValueType.int,
+      SANE_Value_Type.TYPE_FIXED => SANEOptionValueType.fixed,
+      SANE_Value_Type.TYPE_STRING => SANEOptionValueType.string,
+      SANE_Value_Type.TYPE_BUTTON => SANEOptionValueType.button,
+      SANE_Value_Type.TYPE_GROUP => SANEOptionValueType.group,
     };
   }
 }
 
-extension NativeSaneOptionUnitExtension on SANE_Unit {
-  /// Convert native [SANE_Unit] to [SaneOptionUnit].
-  SaneOptionUnit toSaneOptionUnit() {
+extension NativeSANEOptionUnitExtension on SANE_Unit {
+  /// Convert native [SANE_Unit] to [SANEOptionUnit].
+  SANEOptionUnit toSANEOptionUnit() {
     return switch (this) {
-      SANE_Unit.UNIT_NONE => SaneOptionUnit.none,
-      SANE_Unit.UNIT_PIXEL => SaneOptionUnit.pixel,
-      SANE_Unit.UNIT_BIT => SaneOptionUnit.bit,
-      SANE_Unit.UNIT_MM => SaneOptionUnit.mm,
-      SANE_Unit.UNIT_DPI => SaneOptionUnit.dpi,
-      SANE_Unit.UNIT_PERCENT => SaneOptionUnit.percent,
-      SANE_Unit.UNIT_MICROSECOND => SaneOptionUnit.microsecond,
+      SANE_Unit.UNIT_NONE => SANEOptionUnit.none,
+      SANE_Unit.UNIT_PIXEL => SANEOptionUnit.pixel,
+      SANE_Unit.UNIT_BIT => SANEOptionUnit.bit,
+      SANE_Unit.UNIT_MM => SANEOptionUnit.mm,
+      SANE_Unit.UNIT_DPI => SANEOptionUnit.dpi,
+      SANE_Unit.UNIT_PERCENT => SANEOptionUnit.percent,
+      SANE_Unit.UNIT_MICROSECOND => SANEOptionUnit.microsecond,
     };
   }
 }
 
-extension SaneActionExtension on SaneControlAction {
-  /// Convert [SaneControlAction] to native [SANE_Action].
-  SANE_Action toNativeSaneAction() {
+extension SANEActionExtension on SANEControlAction {
+  /// Convert [SANEControlAction] to native [SANE_Action].
+  SANE_Action toNativeSANEAction() {
     return switch (this) {
-      SaneControlAction.getValue => SANE_Action.ACTION_GET_VALUE,
-      SaneControlAction.setValue => SANE_Action.ACTION_SET_VALUE,
-      SaneControlAction.setAuto => SANE_Action.ACTION_SET_AUTO,
+      SANEControlAction.getValue => SANE_Action.ACTION_GET_VALUE,
+      SANEControlAction.setValue => SANE_Action.ACTION_SET_VALUE,
+      SANEControlAction.setAuto => SANE_Action.ACTION_SET_AUTO,
     };
   }
 }
 
-List<SaneOptionCapability> _saneOptionCapabilityFromBitset(int bitset) {
-  final capabilities = <SaneOptionCapability>[];
+List<SANEOptionCapability> _saneOptionCapabilityFromBitset(int bitset) {
+  final capabilities = <SANEOptionCapability>[];
 
   if (bitset & SANE_CAP_SOFT_SELECT != 0) {
-    capabilities.add(SaneOptionCapability.softSelect);
+    capabilities.add(SANEOptionCapability.softSelect);
   }
   if (bitset & SANE_CAP_HARD_SELECT != 0) {
-    capabilities.add(SaneOptionCapability.hardSelect);
+    capabilities.add(SANEOptionCapability.hardSelect);
   }
   if (bitset & SANE_CAP_SOFT_DETECT != 0) {
-    capabilities.add(SaneOptionCapability.softDetect);
+    capabilities.add(SANEOptionCapability.softDetect);
   }
   if (bitset & SANE_CAP_EMULATED != 0) {
-    capabilities.add(SaneOptionCapability.emulated);
+    capabilities.add(SANEOptionCapability.emulated);
   }
   if (bitset & SANE_CAP_AUTOMATIC != 0) {
-    capabilities.add(SaneOptionCapability.automatic);
+    capabilities.add(SANEOptionCapability.automatic);
   }
   if (bitset & SANE_CAP_INACTIVE != 0) {
-    capabilities.add(SaneOptionCapability.inactive);
+    capabilities.add(SANEOptionCapability.inactive);
   }
   if (bitset & SANE_CAP_ADVANCED != 0) {
-    capabilities.add(SaneOptionCapability.advanced);
+    capabilities.add(SANEOptionCapability.advanced);
   }
 
   return capabilities;
 }
 
-SaneOptionConstraint? _saneConstraintFromNative(
+SANEOptionConstraint? _saneConstraintFromNative(
   UnnamedUnion1 constraint,
   SANE_Constraint_Type constraintType,
-  SaneOptionValueType valueType,
+  SANEOptionValueType valueType,
 ) {
   switch (constraintType) {
     case SANE_Constraint_Type.CONSTRAINT_NONE:
       return null;
 
     case SANE_Constraint_Type.CONSTRAINT_RANGE:
-      if (valueType == SaneOptionValueType.int) {
-        return SaneOptionConstraintRange<int>(
+      if (valueType == SANEOptionValueType.int) {
+        return SANEOptionConstraintRange<int>(
           min: constraint.range.ref.min,
           max: constraint.range.ref.max,
           quant: constraint.range.ref.quant,
         );
       }
-      if (valueType == SaneOptionValueType.fixed) {
-        return SaneOptionConstraintRange<double>(
+      if (valueType == SANEOptionValueType.fixed) {
+        return SANEOptionConstraintRange<double>(
           min: constraint.range.ref.min.toDartDouble(),
           max: constraint.range.ref.max.toDartDouble(),
           quant: constraint.range.ref.quant.toDartDouble(),
@@ -161,23 +161,23 @@ SaneOptionConstraint? _saneConstraintFromNative(
       throw Exception('Invalid option value type');
 
     case SANE_Constraint_Type.CONSTRAINT_WORD_LIST:
-      if (valueType == SaneOptionValueType.int) {
+      if (valueType == SANEOptionValueType.int) {
         final wordList = <int>[];
         final itemsCount = constraint.word_list[0] + 1;
         for (var i = 1; i < itemsCount; i++) {
           final word = constraint.word_list[i];
           wordList.add(word);
         }
-        return SaneOptionConstraintWordList<int>(wordList: wordList);
+        return SANEOptionConstraintWordList<int>(wordList: wordList);
       }
-      if (valueType == SaneOptionValueType.fixed) {
+      if (valueType == SANEOptionValueType.fixed) {
         final wordList = <double>[];
         final itemsCount = constraint.word_list[0] + 1;
         for (var i = 1; i < itemsCount; i++) {
           final word = constraint.word_list[i].toDartDouble();
           wordList.add(word);
         }
-        return SaneOptionConstraintWordList<double>(wordList: wordList);
+        return SANEOptionConstraintWordList<double>(wordList: wordList);
       }
       throw Exception('Invalid option value type');
 
@@ -187,49 +187,49 @@ SaneOptionConstraint? _saneConstraintFromNative(
         final string = constraint.string_list[i].toDartString();
         stringList.add(string);
       }
-      return SaneOptionConstraintStringList(stringList: stringList);
+      return SANEOptionConstraintStringList(stringList: stringList);
   }
 }
 
-extension SaneOptionDescriptorExtension on SANE_Option_Descriptor {
-  /// Convert native [SANE_Option_Descriptor] to [SaneOptionDescriptor].
-  SaneOptionDescriptor toSaneOptionDescriptorWithIndex(int index) {
-    return SaneOptionDescriptor(
+extension SANEOptionDescriptorExtension on SANE_Option_Descriptor {
+  /// Convert native [SANE_Option_Descriptor] to [SANEOptionDescriptor].
+  SANEOptionDescriptor toSANEOptionDescriptorWithIndex(int index) {
+    return SANEOptionDescriptor(
       index: index,
       name: name.toDartString(),
       title: title.toDartString(),
       description: desc.toDartString(),
-      type: type.toSaneOptionValueType(),
-      unit: unit.toSaneOptionUnit(),
+      type: type.toSANEOptionValueType(),
+      unit: unit.toSANEOptionUnit(),
       size: size,
       capabilities: _saneOptionCapabilityFromBitset(cap),
       constraint: _saneConstraintFromNative(
         constraint,
         constraint_type,
-        type.toSaneOptionValueType(),
+        type.toSANEOptionValueType(),
       ),
     );
   }
 }
 
-extension SaneOptionInfoBitsetExtension on int {
-  /// Convert native Sane option info bitset to [SaneOptionInfo] list.
-  List<SaneOptionInfo> toSaneOptionInfoList() {
-    final infos = <SaneOptionInfo>[];
+extension SANEOptionInfoBitsetExtension on int {
+  /// Convert native SANE option info bitset to [SANEOptionInfo] list.
+  List<SANEOptionInfo> toSANEOptionInfoList() {
+    final infos = <SANEOptionInfo>[];
     if (this & SANE_INFO_INEXACT != 0) {
-      infos.add(SaneOptionInfo.inexact);
+      infos.add(SANEOptionInfo.inexact);
     }
     if (this & SANE_INFO_RELOAD_OPTIONS != 0) {
-      infos.add(SaneOptionInfo.reloadOptions);
+      infos.add(SANEOptionInfo.reloadOptions);
     }
     if (this & SANE_INFO_RELOAD_PARAMS != 0) {
-      infos.add(SaneOptionInfo.reloadParams);
+      infos.add(SANEOptionInfo.reloadParams);
     }
     return infos;
   }
 }
 
-extension SaneBoolExtension on int {
+extension SANEBoolExtension on int {
   /// Convert native [SANE_Bool] to dart [bool].
   bool toDartBool() {
     switch (this) {
@@ -244,34 +244,34 @@ extension SaneBoolExtension on int {
 }
 
 extension BoolExtensions on bool {
-  DartSANE_Word toSaneBool() => this ? SANE_TRUE : SANE_FALSE;
+  DartSANE_Word toSANEBool() => this ? SANE_TRUE : SANE_FALSE;
 }
 
 const int _saneFixedScaleFactor = 1 << SANE_FIXED_SCALE_SHIFT;
 
-extension SaneFixedExtension on int {
+extension SANEFixedExtension on int {
   double toDartDouble() => this / _saneFixedScaleFactor;
 }
 
 extension DoubleExtension on double {
-  int toSaneFixed() {
+  int toSANEFixed() {
     return (this * _saneFixedScaleFactor).toInt();
   }
 }
 
-extension SaneStringExtension on SANE_String_Const {
+extension SANEStringExtension on SANE_String_Const {
   String toDartString() =>
       this == ffi.nullptr ? '' : cast<ffi.Utf8>().toDartString();
 }
 
 extension StringExtension on String {
-  SANE_String_Const toSaneString() => toNativeUtf8().cast<SANE_Char>();
+  SANE_String_Const toSANEString() => toNativeUtf8().cast<SANE_Char>();
 }
 
-extension SaneCharExtension on ffi.Pointer<SANE_Char> {
+extension SANECharExtension on ffi.Pointer<SANE_Char> {
   void copyStringBytes(String string, {int? maxLenght}) {
     maxLenght = maxLenght ?? string.length;
-    final utf8String = string.toSaneString();
+    final utf8String = string.toSANEString();
     final stringBytes = utf8String.cast<ffi.Uint8>();
 
     for (var i = 0;; i++) {

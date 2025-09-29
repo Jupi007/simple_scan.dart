@@ -4,16 +4,16 @@
 // ignore_for_file: type=lint
 import 'dart:ffi' as ffi;
 
-class LibSane {
+class LibSANE {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
       _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
-  LibSane(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
+  LibSANE(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
-  LibSane.fromLookup(
+  LibSANE.fromLookup(
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;
@@ -255,7 +255,7 @@ class LibSane {
 }
 
 class _SymbolAddresses {
-  final LibSane _library;
+  final LibSANE _library;
   _SymbolAddresses(this._library);
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(SANE_Handle)>>
       get sane_close => _library._sane_closePtr;

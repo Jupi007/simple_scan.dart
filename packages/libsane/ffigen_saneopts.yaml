@@ -1,4 +1,4 @@
-name: "LibSane"
+name: "LibSANE"
 output: "lib/src/bindings_opts.g.dart"
 headers:
   entry-points:

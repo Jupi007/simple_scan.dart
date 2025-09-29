@@ -2,7 +2,7 @@ import 'dart:ffi' as ffi;
 
 import 'package:libsane/src/bindings.g.dart';
 
-LibSane? _dylib;
-LibSane get dylib {
-  return _dylib ??= LibSane(ffi.DynamicLibrary.open('libsane.so'));
+LibSANE? _dylib;
+LibSANE get dylib {
+  return _dylib ??= LibSANE(ffi.DynamicLibrary.open('libsane.so'));
 }

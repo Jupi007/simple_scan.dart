@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
 @immutable
-class SaneVersion {
-  const SaneVersion.fromCode(this.code);
+class SANEVersion {
+  const SANEVersion.fromCode(this.code);
 
   final int code;
 
@@ -16,14 +16,14 @@ class SaneVersion {
   String toString() => '$major.$minor.$build';
 
   @override
-  bool operator ==(covariant SaneVersion other) => code == other.code;
+  bool operator ==(covariant SANEVersion other) => code == other.code;
 
   @override
   int get hashCode => code;
 }
 
-class SaneCredentials {
-  const SaneCredentials({
+class SANECredentials {
+  const SANECredentials({
     required this.username,
     required this.password,
   });
@@ -32,8 +32,8 @@ class SaneCredentials {
   final String password;
 }
 
-class SaneDevice {
-  const SaneDevice({
+class SANEDevice {
+  const SANEDevice({
     required this.name,
     required this.vendor,
     required this.model,
@@ -47,24 +47,24 @@ class SaneDevice {
 
   @override
   String toString() {
-    return 'SaneDevice($name, $vendor, $model, $type)';
+    return 'SANEDevice($name, $vendor, $model, $type)';
   }
 }
 
 @immutable
-class SaneHandle {
-  const SaneHandle(this.deviceName);
+class SANEHandle {
+  const SANEHandle(this.deviceName);
   final String deviceName;
 
   @override
   bool operator ==(Object other) =>
-      other is SaneHandle && other.deviceName == deviceName;
+      other is SANEHandle && other.deviceName == deviceName;
 
   @override
   int get hashCode => deviceName.hashCode;
 }
 
-enum SaneFrameFormat {
+enum SANEFrameFormat {
   gray,
   rgb,
   red,
@@ -72,8 +72,8 @@ enum SaneFrameFormat {
   blue;
 }
 
-class SaneParameters {
-  const SaneParameters({
+class SANEParameters {
+  const SANEParameters({
     required this.format,
     required this.lastFrame,
     required this.bytesPerLine,
@@ -82,7 +82,7 @@ class SaneParameters {
     required this.depth,
   });
 
-  final SaneFrameFormat format;
+  final SANEFrameFormat format;
   final bool lastFrame;
   final int bytesPerLine;
   final int pixelsPerLine;
@@ -91,11 +91,11 @@ class SaneParameters {
 
   @override
   String toString() {
-    return 'SaneParameters($format, $lastFrame, $bytesPerLine, $pixelsPerLine, $lines, $depth)';
+    return 'SANEParameters($format, $lastFrame, $bytesPerLine, $pixelsPerLine, $lines, $depth)';
   }
 }
 
-enum SaneOptionValueType {
+enum SANEOptionValueType {
   bool,
   int,
   fixed,
@@ -104,7 +104,7 @@ enum SaneOptionValueType {
   group;
 }
 
-enum SaneOptionUnit {
+enum SANEOptionUnit {
   none,
   pixel,
   bit,
@@ -114,7 +114,7 @@ enum SaneOptionUnit {
   microsecond;
 }
 
-enum SaneOptionCapability {
+enum SANEOptionCapability {
   softSelect,
   hardSelect,
   softDetect,
@@ -124,10 +124,10 @@ enum SaneOptionCapability {
   advanced;
 }
 
-abstract class SaneOptionConstraint {}
+abstract class SANEOptionConstraint {}
 
-class SaneOptionConstraintRange<T extends num> implements SaneOptionConstraint {
-  const SaneOptionConstraintRange({
+class SANEOptionConstraintRange<T extends num> implements SANEOptionConstraint {
+  const SANEOptionConstraintRange({
     required this.min,
     required this.max,
     required this.quant,
@@ -140,25 +140,25 @@ class SaneOptionConstraintRange<T extends num> implements SaneOptionConstraint {
   final T quant;
 }
 
-class SaneOptionConstraintWordList<T extends num>
-    implements SaneOptionConstraint {
-  const SaneOptionConstraintWordList({
+class SANEOptionConstraintWordList<T extends num>
+    implements SANEOptionConstraint {
+  const SANEOptionConstraintWordList({
     required this.wordList,
   });
 
   final List<T> wordList;
 }
 
-class SaneOptionConstraintStringList implements SaneOptionConstraint {
-  const SaneOptionConstraintStringList({
+class SANEOptionConstraintStringList implements SANEOptionConstraint {
+  const SANEOptionConstraintStringList({
     required this.stringList,
   });
 
   final List<String> stringList;
 }
 
-class SaneOptionDescriptor {
-  const SaneOptionDescriptor({
+class SANEOptionDescriptor {
+  const SANEOptionDescriptor({
     required this.index,
     required this.name,
     required this.title,
@@ -174,36 +174,48 @@ class SaneOptionDescriptor {
   final String? name;
   final String? title;
   final String? description;
-  final SaneOptionValueType type;
-  final SaneOptionUnit unit;
+  final SANEOptionValueType type;
+  final SANEOptionUnit unit;
   final int size;
-  final List<SaneOptionCapability> capabilities;
-  final SaneOptionConstraint? constraint;
+  final List<SANEOptionCapability> capabilities;
+  final SANEOptionConstraint? constraint;
 
   @override
   String toString() {
-    return 'SaneOptionDescriptor($name, $type, $unit, $capabilities, $constraint)';
+    return 'SANEOptionDescriptor($name, $type, $unit, $capabilities, $constraint)';
   }
 }
 
-enum SaneControlAction {
+enum SANEControlAction {
   getValue,
   setValue,
   setAuto;
 }
 
-enum SaneOptionInfo {
+enum SANEOptionInfo {
   inexact,
   reloadOptions,
   reloadParams;
 }
 
-class SaneOptionResult<T> {
-  const SaneOptionResult({
+class SANEOptionResult<T> {
+  const SANEOptionResult({
     required this.value,
     required this.infos,
   });
 
   final T value;
-  final List<SaneOptionInfo> infos;
+  final List<SANEOptionInfo> infos;
+}
+
+abstract final class SANEDeviceTypes {
+  static const filmScanner = 'film scanner';
+  static const flatbedScanner = 'flatbed scanner';
+  static const frameGrabber = 'frame grabber';
+  static const handheldScanner = 'handheld scanner';
+  static const multiFunctionPeripheral = 'multi-function peripheral';
+  static const sheetfedScanner = 'sheetfed scanner';
+  static const stillCamera = 'still camera';
+  static const videoCamera = 'video camera';
+  static const virtualDevice = 'virtual device';
 }

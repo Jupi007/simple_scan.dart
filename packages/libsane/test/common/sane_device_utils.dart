@@ -4,7 +4,7 @@ import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/extensions.dart';
 
-ffi.Pointer<SANE_Device> allocSaneDevice({
+ffi.Pointer<SANE_Device> allocSANEDevice({
   required String name,
   required String vendor,
   required String model,
@@ -12,14 +12,14 @@ ffi.Pointer<SANE_Device> allocSaneDevice({
 }) {
   final devicePointer = ffi.calloc<SANE_Device>();
   devicePointer.ref
-    ..name = name.toSaneString()
-    ..vendor = vendor.toSaneString()
-    ..model = model.toSaneString()
-    ..type = type.toSaneString();
+    ..name = name.toSANEString()
+    ..vendor = vendor.toSANEString()
+    ..model = model.toSANEString()
+    ..type = type.toSANEString();
   return devicePointer;
 }
 
-ffi.Pointer<ffi.Pointer<SANE_Device>> allocSaneDevicePointerArray(
+ffi.Pointer<ffi.Pointer<SANE_Device>> allocSANEDevicePointerArray(
   List<ffi.Pointer<SANE_Device>> devices,
 ) {
   final count = devices.length;

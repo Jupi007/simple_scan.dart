@@ -4,7 +4,7 @@ import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/extensions.dart';
 
-ffi.Pointer<SANE_Option_Descriptor> allocSaneOptionDescriptor({
+ffi.Pointer<SANE_Option_Descriptor> allocSANEOptionDescriptor({
   String? name,
   String? title,
   String? description,
@@ -17,9 +17,9 @@ ffi.Pointer<SANE_Option_Descriptor> allocSaneOptionDescriptor({
   final descriptorPointer = ffi.calloc<SANE_Option_Descriptor>();
   final descriptor = descriptorPointer.ref;
 
-  descriptor.name = (name ?? 'option-name').toSaneString();
-  descriptor.title = (title ?? 'Option Title').toSaneString();
-  descriptor.desc = (description ?? 'Description of the option').toSaneString();
+  descriptor.name = (name ?? 'option-name').toSANEString();
+  descriptor.title = (title ?? 'Option Title').toSANEString();
+  descriptor.desc = (description ?? 'Description of the option').toSANEString();
   descriptor.typeAsInt = (type ?? SANE_Value_Type.TYPE_STRING).value;
   descriptor.unitAsInt = (unit ?? SANE_Unit.UNIT_NONE).value;
   descriptor.size = size ?? 128;

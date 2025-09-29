@@ -1,30 +1,28 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:libsane/src/exceptions.dart';
-import 'package:libsane/src/isolate/isolate.dart';
-import 'package:libsane/src/isolate/messages/cancel.dart';
-import 'package:libsane/src/isolate/messages/close.dart';
-import 'package:libsane/src/isolate/messages/control_option.dart';
-import 'package:libsane/src/isolate/messages/exit.dart';
-import 'package:libsane/src/isolate/messages/get_all_option_descriptors.dart';
-import 'package:libsane/src/isolate/messages/get_devices.dart';
-import 'package:libsane/src/isolate/messages/get_option_descriptor.dart';
-import 'package:libsane/src/isolate/messages/get_parameters.dart';
-import 'package:libsane/src/isolate/messages/init.dart';
-import 'package:libsane/src/isolate/messages/open.dart';
-import 'package:libsane/src/isolate/messages/read.dart';
-import 'package:libsane/src/isolate/messages/start.dart';
+import 'package:libsane/src/isolated_sane.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:libsane/src/sync_sane.dart';
 
-typedef AuthCallback = SaneCredentials Function(String resourceName);
+typedef AuthCallback = SANECredentials Function(String resourceName);
 
-class Sane {
-  factory Sane() => _instance ??= Sane._();
-  Sane._();
-  static Sane? _instance;
+abstract interface class SANE {
+  /// Returns a singleton instance of [SANE] that runs in the same isolate
+  /// as the caller.
+  ///
+  /// Note: [SANE.sync] and [SANE.isolated] both return the same singleton.
+  /// The first one you call decides the mode for the entire application.
+  factory SANE.sync() => _instance ??= SyncSANE();
 
-  SaneIsolate? _isolate;
+  /// Returns a singleton instance of [SANE] that runs in a separate isolate
+  /// for background processing.
+  ///
+  /// Note: [SANE.sync] and [SANE.isolated] both return the same singleton.
+  /// The first one you call decides the mode for the entire application.
+  factory SANE.isolated() => _instance ??= IsolatedSANE();
+
+  static SANE? _instance;
 
   /// Initializes the SANE library.
   ///
@@ -36,12 +34,7 @@ class Sane {
   /// See also:
   ///
   /// - [`sane_open`](https://sane-project.gitlab.io/standard/api.html#sane-open)
-  Future<SaneVersion> init({AuthCallback? authCallback}) async {
-    _isolate = _isolate ?? await SaneIsolate.spawn();
-    final message = InitMessage(authCallback);
-    final response = await _sendMessage(message);
-    return response.version;
-  }
+  FutureOr<SANEVersion> init({AuthCallback? authCallback});
 
   /// Disposes the SANE instance.
   ///
@@ -50,11 +43,7 @@ class Sane {
   /// See also:
   ///
   /// - [`sane_exit`](https://sane-project.gitlab.io/standard/api.html#sane-exit)
-  Future<void> exit() async {
-    await _sendMessage(const ExitMessage());
-    _isolate?.kill();
-    _isolate = null;
-  }
+  FutureOr<void> exit();
 
   /// Queries the list of devices that are available.
   ///
@@ -67,11 +56,7 @@ class Sane {
   /// See also:
   ///
   /// - [`sane_get_devices`](https://sane-project.gitlab.io/standard/api.html#sane-get-devices)
-  Future<List<SaneDevice>> getDevices({bool localOnly = true}) async {
-    final message = GetDevicesMessage(localOnly);
-    final response = await _sendMessage(message);
-    return response.devices;
-  }
+  FutureOr<List<SANEDevice>> getDevices({bool localOnly = true});
 
   /// Establish a connection to a particular device.
   ///
@@ -79,26 +64,22 @@ class Sane {
   ///
   /// Exceptions:
   ///
-  /// - Throws [SaneDeviceBusyException] if the device is busy. The operation
+  /// - Throws [SANEDeviceBusyException] if the device is busy. The operation
   ///   should be later again.
-  /// - Throws [SaneInvalidDataException] if the device nameis not valid.
-  /// - Throws [SaneIoException] if an error occurred while communicating with
+  /// - Throws [SANEInvalidDataException] if the device nameis not valid.
+  /// - Throws [SANEIoException] if an error occurred while communicating with
   ///   the device.
-  /// - Throws [SaneNoMemoryException] if no memory is available.
-  /// - Throws [SaneAccessDeniedException] if access to the device has been
+  /// - Throws [SANENoMemoryException] if no memory is available.
+  /// - Throws [SANEAccessDeniedException] if access to the device has been
   ///   denied due to insufficient or invalid authentication.
   ///
   /// See also:
   ///
   /// - [`sane_open`](https://sane-project.gitlab.io/standard/api.html#sane-open)
-  Future<SaneHandle> open(String name) async {
-    final message = OpenMessage(name);
-    final response = await _sendMessage(message);
-    return response.handle;
-  }
+  FutureOr<SANEHandle> open(String name);
 
-  /// Shortcut for [open] with a [SaneDevice]
-  Future<SaneHandle> openDevice(SaneDevice device) {
+  /// Shortcut for [open] with a [SANEDevice]
+  FutureOr<SANEHandle> openDevice(SANEDevice device) {
     return open(device.name);
   }
 
@@ -107,85 +88,49 @@ class Sane {
   /// See also:
   ///
   /// - [`sane_close`](https://sane-project.gitlab.io/standard/api.html#sane-close)
-  Future<void> close(SaneHandle handle) async {
-    final message = CloseMessage(handle);
-    await _sendMessage(message);
-  }
+  FutureOr<void> close(SANEHandle handle);
 
-  Future<SaneOptionDescriptor?> getOptionDescriptor(
-    SaneHandle handle,
+  FutureOr<SANEOptionDescriptor?> getOptionDescriptor(
+    SANEHandle handle,
     int index,
-  ) async {
-    final message = GetOptionDescriptorMessage(handle, index);
-    final response = await _sendMessage(message);
-    return response.optionDescriptor;
-  }
+  );
 
-  Future<List<SaneOptionDescriptor>> getAllOptionDescriptors(
-    SaneHandle handle,
-  ) async {
-    final message = GetAllOptionDescriptorsMessage(handle);
-    final response = await _sendMessage(message);
-    return response.optionDescriptors;
-  }
+  FutureOr<List<SANEOptionDescriptor>> getAllOptionDescriptors(
+    SANEHandle handle,
+  );
 
-  Future<SaneOptionResult<bool>> controlBoolOption({
-    required SaneHandle handle,
+  FutureOr<SANEOptionResult<bool>> controlBoolOption({
+    required SANEHandle handle,
     required int index,
-    required SaneControlAction action,
+    required SANEControlAction action,
     bool? value,
-  }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _sendMessage(message);
-    return response.optionResult;
-  }
+  });
 
-  Future<SaneOptionResult<int>> controlIntOption({
-    required SaneHandle handle,
+  FutureOr<SANEOptionResult<int>> controlIntOption({
+    required SANEHandle handle,
     required int index,
-    required SaneControlAction action,
+    required SANEControlAction action,
     int? value,
-  }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _sendMessage(message);
-    return response.optionResult;
-  }
+  });
 
-  Future<SaneOptionResult<double>> controlFixedOption({
-    required SaneHandle handle,
+  FutureOr<SANEOptionResult<double>> controlFixedOption({
+    required SANEHandle handle,
     required int index,
-    required SaneControlAction action,
+    required SANEControlAction action,
     double? value,
-  }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _sendMessage(message);
-    return response.optionResult;
-  }
+  });
 
-  Future<SaneOptionResult<String>> controlStringOption({
-    required SaneHandle handle,
+  FutureOr<SANEOptionResult<String>> controlStringOption({
+    required SANEHandle handle,
     required int index,
-    required SaneControlAction action,
+    required SANEControlAction action,
     String? value,
-  }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _sendMessage(message);
-    return response.optionResult;
-  }
+  });
 
-  Future<SaneOptionResult<Null>> controlButtonOption({
-    required SaneHandle handle,
+  FutureOr<SANEOptionResult<Null>> controlButtonOption({
+    required SANEHandle handle,
     required int index,
-  }) async {
-    final message = ControlValueOptionMessage(
-      handle,
-      index,
-      SaneControlAction.setValue,
-      null,
-    );
-    final response = await _sendMessage(message);
-    return response.optionResult;
-  }
+  });
 
   /// Obtain the current scan parameters.
   ///
@@ -195,38 +140,31 @@ class Sane {
   /// See also:
   ///
   /// - [`sane_get_parameters`](https://sane-project.gitlab.io/standard/api.html#sane-get-parameters)
-  Future<SaneParameters> getParameters(SaneHandle handle) async {
-    final message = GetParametersMessage(handle);
-    final response = await _sendMessage(message);
-    return response.parameters;
-  }
+  FutureOr<SANEParameters> getParameters(SANEHandle handle);
 
   /// Initiates acquisition of an image from the device.
   ///
   /// Exceptions:
   ///
-  /// - Throws [SaneCancelledException] if the operation was cancelled through
+  /// - Throws [SANECancelledException] if the operation was cancelled through
   ///   a call to [cancel].
-  /// - Throws [SaneDeviceBusyException] if the device is busy. The operation
+  /// - Throws [SANEDeviceBusyException] if the device is busy. The operation
   ///   should be later again.
-  /// - Throws [SaneJammedException] if the document feeder is jammed.
-  /// - Throws [SaneNoDocumentsException] if the document feeder is out of
+  /// - Throws [SANEJammedException] if the document feeder is jammed.
+  /// - Throws [SANENoDocumentsException] if the document feeder is out of
   ///   documents.
-  /// - Throws [SaneCoverOpenException] if the scanner cover is open.
-  /// - Throws [SaneIoException] if an error occurred while communicating with
+  /// - Throws [SANECoverOpenException] if the scanner cover is open.
+  /// - Throws [SANEIoException] if an error occurred while communicating with
   ///   the device.
-  /// - Throws [SaneNoMemoryException] if no memory is available.
-  /// - Throws [SaneInvalidDataException] if the sane cannot be started with the
+  /// - Throws [SANENoMemoryException] if no memory is available.
+  /// - Throws [SANEInvalidDataException] if the sane cannot be started with the
   ///   current set of options. The frontend should reload the option
   ///   descriptors.
   ///
   /// See also:
   ///
   /// - [`sane_start`](https://sane-project.gitlab.io/standard/api.html#sane-start)
-  Future<void> start(SaneHandle handle) async {
-    final message = StartMessage(handle);
-    await _sendMessage(message);
-  }
+  FutureOr<void> start(SANEHandle handle);
 
   /// Reads image data from the device.
   ///
@@ -235,26 +173,22 @@ class Sane {
   ///
   /// Exceptions:
   ///
-  /// - Throws [SaneCancelledException] if the operation was cancelled through
+  /// - Throws [SANECancelledException] if the operation was cancelled through
   ///   a call to [cancel].
-  /// - Throws [SaneJammedException] if the document feeder is jammed.
-  /// - Throws [SaneNoDocumentsException] if the document feeder is out of
+  /// - Throws [SANEJammedException] if the document feeder is jammed.
+  /// - Throws [SANENoDocumentsException] if the document feeder is out of
   ///   documents.
-  /// - Throws [SaneCoverOpenException] if the scanner cover is open.
-  /// - Throws [SaneIoException] if an error occurred while communicating with
+  /// - Throws [SANECoverOpenException] if the scanner cover is open.
+  /// - Throws [SANEIoException] if an error occurred while communicating with
   ///   the device.
-  /// - Throws [SaneNoMemoryException] if no memory is available.
-  /// - Throws [SaneAccessDeniedException] if access to the device has been
+  /// - Throws [SANENoMemoryException] if no memory is available.
+  /// - Throws [SANEAccessDeniedException] if access to the device has been
   ///   denied due to insufficient or invalid authentication.
   ///
   /// See also:
   ///
   /// - [`sane_read`](https://sane-project.gitlab.io/standard/api.html#sane-read)
-  Future<Uint8List> read(SaneHandle handle, int bufferSize) async {
-    final message = ReadMessage(handle, bufferSize);
-    final response = await _sendMessage(message);
-    return response.bytes;
-  }
+  FutureOr<Uint8List> read(SANEHandle handle, int bufferSize);
 
   /// Tries to cancel the currently pending operation of the device immediately
   /// or as quickly as possible.
@@ -262,36 +196,5 @@ class Sane {
   /// See also:
   ///
   /// - [`sane_cancel`](https://sane-project.gitlab.io/standard/api.html#sane-cancel)
-  Future<void> cancel(SaneHandle handle) async {
-    final message = CancelMessage(handle);
-    await _sendMessage(message);
-  }
-
-  Future<T> _sendMessage<T extends IsolateResponse>(
-    IsolateMessage<T> message,
-  ) async {
-    if (_isolate == null) {
-      throw StateError(
-        'The isolate has not been initialized, please call spawn() first.',
-      );
-    }
-    return _isolate!.sendMessage(message);
-  }
-}
-
-/// Predefined device types for [SaneDevice.type].
-///
-/// See also:
-///
-/// - [Predefined Device Information Strings](https://sane-project.gitlab.io/standard/api.html#vendor-names)
-abstract final class SaneDeviceTypes {
-  static const filmScanner = 'film scanner';
-  static const flatbedScanner = 'flatbed scanner';
-  static const frameGrabber = 'frame grabber';
-  static const handheldScanner = 'handheld scanner';
-  static const multiFunctionPeripheral = 'multi-function peripheral';
-  static const sheetfedScanner = 'sheetfed scanner';
-  static const stillCamera = 'still camera';
-  static const videoCamera = 'video camera';
-  static const virtualDevice = 'virtual device';
+  FutureOr<void> cancel(SANEHandle handle);
 }

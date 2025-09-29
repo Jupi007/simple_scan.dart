@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/extensions.dart';
 
-void assignToSaneParametersPointer({
+void assignToSANEParametersPointer({
   required ffi.Pointer<SANE_Parameters> pointer,
   SANE_Frame? format,
   bool? lastFrame,
@@ -15,7 +15,7 @@ void assignToSaneParametersPointer({
   final parameters = pointer.ref;
 
   parameters.formatAsInt = (format ?? SANE_Frame.FRAME_RGB).value;
-  parameters.last_frame = (lastFrame ?? true).toSaneBool();
+  parameters.last_frame = (lastFrame ?? true).toSANEBool();
   parameters.bytes_per_line = bytesPerLine ?? 1416;
   parameters.pixels_per_line = pixelsPerLine ?? 472;
   parameters.lines = lines ?? 590;

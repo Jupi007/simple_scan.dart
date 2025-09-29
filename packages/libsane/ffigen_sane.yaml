@@ -1,4 +1,4 @@
-name: "LibSane"
+name: "LibSANE"
 output: "lib/src/bindings.g.dart"
 silence-enum-warning: true
 headers:

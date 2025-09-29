@@ -13,7 +13,7 @@ void main(List<String> args) async {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  final sane = Sane();
+  final sane = SANE.isolated();
 
   await sane.init();
 
@@ -36,7 +36,7 @@ void main(List<String> args) async {
       await sane.controlStringOption(
         handle: handle,
         index: optionDescriptor.index,
-        action: SaneControlAction.setValue,
+        action: SANEControlAction.setValue,
         value: saneopts.VALUE_SCAN_MODE_COLOR,
       );
       break;

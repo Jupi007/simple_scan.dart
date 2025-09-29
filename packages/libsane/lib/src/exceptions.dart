@@ -6,35 +6,35 @@ import 'package:libsane/src/dylib.dart';
 ///
 /// See also:
 ///
-/// - [SaneEofException]
-/// - [SaneJammedException]
-/// - [SaneDeviceBusyException]
-/// - [SaneInvalidDataException]
-/// - [SaneIoException]
-/// - [SaneNoDocumentsException]
-/// - [SaneCoverOpenException]
-/// - [SaneUnsupportedException]
-/// - [SaneCancelledException]
-/// - [SaneNoMemoryException]
+/// - [SANEEofException]
+/// - [SANEJammedException]
+/// - [SANEDeviceBusyException]
+/// - [SANEInvalidDataException]
+/// - [SANEIoException]
+/// - [SANENoDocumentsException]
+/// - [SANECoverOpenException]
+/// - [SANEUnsupportedException]
+/// - [SANECancelledException]
+/// - [SANENoMemoryException]
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-sealed class SaneException implements Exception {
-  factory SaneException(SANE_Status status) {
+sealed class SANEException implements Exception {
+  factory SANEException(SANE_Status status) {
     final exception = switch (status) {
       SANE_Status.STATUS_GOOD => throw ArgumentError(
-          'Cannot create SaneException with status STATUS_GOOD',
+          'Cannot create SANEException with status STATUS_GOOD',
           'status',
         ),
-      SANE_Status.STATUS_UNSUPPORTED => const SaneUnsupportedException(),
-      SANE_Status.STATUS_CANCELLED => const SaneCancelledException(),
-      SANE_Status.STATUS_DEVICE_BUSY => const SaneDeviceBusyException(),
-      SANE_Status.STATUS_INVAL => const SaneInvalidDataException(),
-      SANE_Status.STATUS_EOF => const SaneEofException(),
-      SANE_Status.STATUS_JAMMED => const SaneJammedException(),
-      SANE_Status.STATUS_NO_DOCS => const SaneNoDocumentsException(),
-      SANE_Status.STATUS_COVER_OPEN => const SaneCoverOpenException(),
-      SANE_Status.STATUS_IO_ERROR => const SaneIoException(),
-      SANE_Status.STATUS_NO_MEM => const SaneNoMemoryException(),
-      SANE_Status.STATUS_ACCESS_DENIED => const SaneAccessDeniedException(),
+      SANE_Status.STATUS_UNSUPPORTED => const SANEUnsupportedException(),
+      SANE_Status.STATUS_CANCELLED => const SANECancelledException(),
+      SANE_Status.STATUS_DEVICE_BUSY => const SANEDeviceBusyException(),
+      SANE_Status.STATUS_INVAL => const SANEInvalidDataException(),
+      SANE_Status.STATUS_EOF => const SANEEofException(),
+      SANE_Status.STATUS_JAMMED => const SANEJammedException(),
+      SANE_Status.STATUS_NO_DOCS => const SANENoDocumentsException(),
+      SANE_Status.STATUS_COVER_OPEN => const SANECoverOpenException(),
+      SANE_Status.STATUS_IO_ERROR => const SANEIoException(),
+      SANE_Status.STATUS_NO_MEM => const SANENoMemoryException(),
+      SANE_Status.STATUS_ACCESS_DENIED => const SANEAccessDeniedException(),
     };
 
     assert(exception._status == status);
@@ -42,7 +42,7 @@ sealed class SaneException implements Exception {
     return exception;
   }
 
-  const SaneException._();
+  const SANEException._();
   SANE_Status get _status;
 
   String get message {
@@ -60,8 +60,8 @@ sealed class SaneException implements Exception {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneEofException extends SaneException {
-  const SaneEofException() : super._();
+final class SANEEofException extends SANEException {
+  const SANEEofException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_EOF;
@@ -72,8 +72,8 @@ final class SaneEofException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneJammedException extends SaneException {
-  const SaneJammedException() : super._();
+final class SANEJammedException extends SANEException {
+  const SANEJammedException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_JAMMED;
@@ -84,8 +84,8 @@ final class SaneJammedException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneNoDocumentsException extends SaneException {
-  const SaneNoDocumentsException() : super._();
+final class SANENoDocumentsException extends SANEException {
+  const SANENoDocumentsException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_NO_DOCS;
@@ -96,8 +96,8 @@ final class SaneNoDocumentsException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneCoverOpenException extends SaneException {
-  const SaneCoverOpenException() : super._();
+final class SANECoverOpenException extends SANEException {
+  const SANECoverOpenException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_COVER_OPEN;
@@ -108,8 +108,8 @@ final class SaneCoverOpenException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneDeviceBusyException extends SaneException {
-  const SaneDeviceBusyException() : super._();
+final class SANEDeviceBusyException extends SANEException {
+  const SANEDeviceBusyException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_DEVICE_BUSY;
@@ -120,8 +120,8 @@ final class SaneDeviceBusyException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneInvalidDataException extends SaneException {
-  const SaneInvalidDataException() : super._();
+final class SANEInvalidDataException extends SANEException {
+  const SANEInvalidDataException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_INVAL;
@@ -132,8 +132,8 @@ final class SaneInvalidDataException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneIoException extends SaneException {
-  const SaneIoException() : super._();
+final class SANEIoException extends SANEException {
+  const SANEIoException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_IO_ERROR;
@@ -144,8 +144,8 @@ final class SaneIoException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneNoMemoryException extends SaneException {
-  const SaneNoMemoryException() : super._();
+final class SANENoMemoryException extends SANEException {
+  const SANENoMemoryException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_NO_MEM;
@@ -156,8 +156,8 @@ final class SaneNoMemoryException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneAccessDeniedException extends SaneException {
-  const SaneAccessDeniedException() : super._();
+final class SANEAccessDeniedException extends SANEException {
+  const SANEAccessDeniedException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_ACCESS_DENIED;
@@ -168,8 +168,8 @@ final class SaneAccessDeniedException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneCancelledException extends SaneException {
-  const SaneCancelledException() : super._();
+final class SANECancelledException extends SANEException {
+  const SANECancelledException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_CANCELLED;
@@ -180,30 +180,30 @@ final class SaneCancelledException extends SaneException {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SaneUnsupportedException extends SaneException {
-  const SaneUnsupportedException() : super._();
+final class SANEUnsupportedException extends SANEException {
+  const SANEUnsupportedException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_UNSUPPORTED;
 }
 
-abstract interface class SaneError extends Error {}
+abstract interface class SANEError extends Error {}
 
 /// SANE has been exited
-final class SaneNotInitializedError extends StateError implements SaneError {
-  SaneNotInitializedError()
+final class SANENotInitializedError extends StateError implements SANEError {
+  SANENotInitializedError()
       : super('SANE isn\'t initialized, please call init().');
 }
 
 /// SANE is already initialized
-final class SaneAlreadyInitializedError extends StateError
-    implements SaneError {
-  SaneAlreadyInitializedError() : super('SANE is already initialized.');
+final class SANEAlreadyInitializedError extends StateError
+    implements SANEError {
+  SANEAlreadyInitializedError() : super('SANE is already initialized.');
 }
 
 /// SANE is already initialized
-final class SaneHandleClosedError extends StateError implements SaneError {
-  SaneHandleClosedError(this.deviceName)
+final class SANEHandleClosedError extends StateError implements SANEError {
+  SANEHandleClosedError(this.deviceName)
       : super(
           'This handle is closed, you should recall open() with "$deviceName".',
         );
