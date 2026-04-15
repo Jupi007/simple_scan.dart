@@ -2,7 +2,7 @@ name: simple_scan_example
 description: Dart scanner library example app
 version: 0.1.0
 publish_to: none
-repository: https://github.com/ubuntu-flutter-community/sane.dart
+repository: https://github.com/ubuntu-flutter-community/simple_scan.dart
 
 platforms:
   linux:
