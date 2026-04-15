@@ -1,0 +1,13 @@
+name: simple_scan
+description: Dart scanner library
+version: 0.1.0
+repository: https://github.com/ubuntu-flutter-community/sane.dart
+
+platforms:
+  linux:
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  simple_scan_platform_interface: ^0.1.0

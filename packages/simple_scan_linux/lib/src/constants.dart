@@ -1,0 +1,4 @@
+const MM_INCH_RATIO = 1 / 25.4;
+const RED_BYTE_INDEX = 0;
+const GREEN_BYTE_INDEX = 1;
+const BLUE_BYTE_INDEX = 2;

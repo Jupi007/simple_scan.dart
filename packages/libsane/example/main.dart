@@ -26,7 +26,7 @@ void main(List<String> args) async {
     return;
   }
 
-  final device = devices.first;
+  final device = devices[1];
   final handle = await sane.openDevice(device);
 
   final optionDescriptors = await sane.getAllOptionDescriptors(handle);
