@@ -1,12 +1,12 @@
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class CloseMessage implements Message<CloseResponse> {
-  const CloseMessage(this.handle);
+class CloseQuery implements Query<CloseResponse> {
+  const CloseQuery(this.handle);
   final SANEHandle handle;
 }
 
@@ -14,19 +14,19 @@ class CloseResponse implements Response {
   const CloseResponse();
 }
 
-class CloseMessageHandler
-    extends MessageHandler<CloseMessage, CloseResponse, SANEBusContext> {
-  const CloseMessageHandler(this.libsane);
+class CloseQueryHandler
+    extends QueryHandler<CloseQuery, CloseResponse, SANEBusContext> {
+  const CloseQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
-  CloseResponse handle(CloseMessage message, SANEBusContext context) {
+  CloseResponse handle(CloseQuery query, SANEBusContext context) {
     if (!context.initialized) throw SANENotInitializedError();
 
-    libsane.sane_close(context.nativeHandles.get(message.handle));
+    libsane.sane_close(context.nativeHandles.get(query.handle));
     logger.finest('sane_close()');
 
-    context.nativeHandles.remove(message.handle);
+    context.nativeHandles.remove(query.handle);
 
     return const CloseResponse();
   }

@@ -1,12 +1,12 @@
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class CancelMessage implements Message<CancelResponse> {
-  const CancelMessage(this.handle);
+class CancelQuery implements Query<CancelResponse> {
+  const CancelQuery(this.handle);
   final SANEHandle handle;
 }
 
@@ -14,17 +14,17 @@ class CancelResponse implements Response {
   const CancelResponse();
 }
 
-class CancelMessageHandler
-    extends MessageHandler<CancelMessage, CancelResponse, SANEBusContext> {
-  const CancelMessageHandler(this.libsane);
+class CancelQueryHandler
+    extends QueryHandler<CancelQuery, CancelResponse, SANEBusContext> {
+  const CancelQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
-  CancelResponse handle(CancelMessage message, SANEBusContext context) {
+  CancelResponse handle(CancelQuery query, SANEBusContext context) {
     if (!context.initialized) throw SANENotInitializedError();
 
     libsane.sane_cancel(
-      context.nativeHandles.get(message.handle),
+      context.nativeHandles.get(query.handle),
     );
     logger.finest('sane_cancel()');
 

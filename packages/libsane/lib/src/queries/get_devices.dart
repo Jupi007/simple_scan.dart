@@ -2,15 +2,15 @@ import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class GetDevicesMessage implements Message<GetDevicesResponse> {
-  const GetDevicesMessage(this.localOnly);
+class GetDevicesQuery implements Query<GetDevicesResponse> {
+  const GetDevicesQuery(this.localOnly);
   final bool localOnly;
 }
 
@@ -19,14 +19,14 @@ class GetDevicesResponse implements Response {
   final List<SANEDevice> devices;
 }
 
-class GetDevicesMessageHandler extends MessageHandler<GetDevicesMessage,
-    GetDevicesResponse, SANEBusContext> {
-  const GetDevicesMessageHandler(this.libsane);
+class GetDevicesQueryHandler
+    extends QueryHandler<GetDevicesQuery, GetDevicesResponse, SANEBusContext> {
+  const GetDevicesQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
   GetDevicesResponse handle(
-    GetDevicesMessage message,
+    GetDevicesQuery query,
     SANEBusContext context,
   ) {
     if (!context.initialized) throw SANENotInitializedError();
@@ -37,7 +37,7 @@ class GetDevicesMessageHandler extends MessageHandler<GetDevicesMessage,
     try {
       final status = libsane.sane_get_devices(
         deviceListPointer,
-        message.localOnly.toSANEBool(),
+        query.localOnly.toSANEBool(),
       );
       logger.finest('sane_get_devices() -> ${status.name}');
 

@@ -2,16 +2,16 @@ import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class InitMessage implements Message<InitResponse> {
-  const InitMessage(this.authCallback);
+class InitQuery implements Query<InitResponse> {
+  const InitQuery(this.authCallback);
   final AuthCallback? authCallback;
 }
 
@@ -20,16 +20,16 @@ class InitResponse implements Response {
   final SANEVersion version;
 }
 
-class InitMessageHandler
-    extends MessageHandler<InitMessage, InitResponse, SANEBusContext> {
-  const InitMessageHandler(this.libsane);
+class InitQueryHandler
+    extends QueryHandler<InitQuery, InitResponse, SANEBusContext> {
+  const InitQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
-  InitResponse handle(InitMessage message, SANEBusContext context) {
+  InitResponse handle(InitQuery query, SANEBusContext context) {
     if (context.initialized) throw SANEAlreadyInitializedError();
 
-    final authCallback = message.authCallback;
+    final authCallback = query.authCallback;
 
     void authCallbackAdapter(
       SANE_String_Const resource,

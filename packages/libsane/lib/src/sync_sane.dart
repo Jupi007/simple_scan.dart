@@ -1,53 +1,53 @@
 import 'dart:typed_data';
 
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/dylib.dart';
-import 'package:libsane/src/messages/cancel.dart';
-import 'package:libsane/src/messages/close.dart';
-import 'package:libsane/src/messages/control_option.dart';
-import 'package:libsane/src/messages/exit.dart';
-import 'package:libsane/src/messages/get_all_option_descriptors.dart';
-import 'package:libsane/src/messages/get_devices.dart';
-import 'package:libsane/src/messages/get_option_descriptor.dart';
-import 'package:libsane/src/messages/get_parameters.dart';
-import 'package:libsane/src/messages/init.dart';
-import 'package:libsane/src/messages/open.dart';
-import 'package:libsane/src/messages/read.dart';
-import 'package:libsane/src/messages/start.dart';
+import 'package:libsane/src/queries/cancel.dart';
+import 'package:libsane/src/queries/close.dart';
+import 'package:libsane/src/queries/control_option.dart';
+import 'package:libsane/src/queries/exit.dart';
+import 'package:libsane/src/queries/get_all_option_descriptors.dart';
+import 'package:libsane/src/queries/get_devices.dart';
+import 'package:libsane/src/queries/get_option_descriptor.dart';
+import 'package:libsane/src/queries/get_parameters.dart';
+import 'package:libsane/src/queries/init.dart';
+import 'package:libsane/src/queries/open.dart';
+import 'package:libsane/src/queries/read.dart';
+import 'package:libsane/src/queries/start.dart';
 import 'package:libsane/src/sane.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
 import 'package:meta/meta.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
 class SyncSANE implements SANE {
   @visibleForTesting
-  MessageBus? bus;
+  QueryBus? bus;
 
   @override
   SANEVersion init({AuthCallback? authCallback}) {
     _initBus();
-    final message = InitMessage(authCallback);
-    final response = _handle(message);
+    final query = InitQuery(authCallback);
+    final response = _handle(query);
     return response.version;
   }
 
   @override
   void exit() {
-    _handle(const ExitMessage());
+    _handle(const ExitQuery());
     bus = null;
   }
 
   @override
   List<SANEDevice> getDevices({bool localOnly = true}) {
-    final message = GetDevicesMessage(localOnly);
-    final response = _handle(message);
+    final query = GetDevicesQuery(localOnly);
+    final response = _handle(query);
     return response.devices;
   }
 
   @override
   SANEHandle open(String name) {
-    final message = OpenMessage(name);
-    final response = _handle(message);
+    final query = OpenQuery(name);
+    final response = _handle(query);
     return response.handle;
   }
 
@@ -58,8 +58,8 @@ class SyncSANE implements SANE {
 
   @override
   void close(SANEHandle handle) {
-    final message = CloseMessage(handle);
-    _handle(message);
+    final query = CloseQuery(handle);
+    _handle(query);
   }
 
   @override
@@ -67,8 +67,8 @@ class SyncSANE implements SANE {
     SANEHandle handle,
     int index,
   ) {
-    final message = GetOptionDescriptorMessage(handle, index);
-    final response = _handle(message);
+    final query = GetOptionDescriptorQuery(handle, index);
+    final response = _handle(query);
     return response.optionDescriptor;
   }
 
@@ -76,8 +76,8 @@ class SyncSANE implements SANE {
   List<SANEOptionDescriptor> getAllOptionDescriptors(
     SANEHandle handle,
   ) {
-    final message = GetAllOptionDescriptorsMessage(handle);
-    final response = _handle(message);
+    final query = GetAllOptionDescriptorsQuery(handle);
+    final response = _handle(query);
     return response.optionDescriptors;
   }
 
@@ -88,8 +88,8 @@ class SyncSANE implements SANE {
     required SANEControlAction action,
     bool? value,
   }) {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
     return response.optionResult;
   }
 
@@ -100,8 +100,8 @@ class SyncSANE implements SANE {
     required SANEControlAction action,
     int? value,
   }) {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
     return response.optionResult;
   }
 
@@ -112,8 +112,8 @@ class SyncSANE implements SANE {
     required SANEControlAction action,
     double? value,
   }) {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
     return response.optionResult;
   }
 
@@ -124,8 +124,8 @@ class SyncSANE implements SANE {
     required SANEControlAction action,
     String? value,
   }) {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
     return response.optionResult;
   }
 
@@ -134,76 +134,76 @@ class SyncSANE implements SANE {
     required SANEHandle handle,
     required int index,
   }) {
-    final message = ControlValueOptionMessage(
+    final query = ControlValueOptionQuery(
       handle,
       index,
       SANEControlAction.setValue,
       null,
     );
-    final response = _handle(message);
+    final response = _handle(query);
     return response.optionResult;
   }
 
   @override
   SANEParameters getParameters(SANEHandle handle) {
-    final message = GetParametersMessage(handle);
-    final response = _handle(message);
+    final query = GetParametersQuery(handle);
+    final response = _handle(query);
     return response.parameters;
   }
 
   @override
   void start(SANEHandle handle) {
-    final message = StartMessage(handle);
-    _handle(message);
+    final query = StartQuery(handle);
+    _handle(query);
   }
 
   @override
   Uint8List read(SANEHandle handle, int bufferSize) {
-    final message = SyncReadMessage(handle, bufferSize);
-    final response = _handle(message);
+    final query = SyncReadQuery(handle, bufferSize);
+    final response = _handle(query);
     return response.bytes;
   }
 
   @override
   void cancel(SANEHandle handle) {
-    final message = CancelMessage(handle);
-    _handle(message);
+    final query = CancelQuery(handle);
+    _handle(query);
   }
 
   void _initBus() {
     if (bus != null) return;
-    bus = MessageBus(
+    bus = QueryBus(
       handlers: [
-        InitMessageHandler(dylib),
-        ExitMessageHandler(dylib),
-        GetDevicesMessageHandler(dylib),
-        OpenMessageHandler(dylib),
-        CloseMessageHandler(dylib),
-        GetOptionDescriptorMessageHandler(dylib),
-        GetAllOptionDescriptorsMessageHandler(dylib),
-        ControlValueOptionMessageHandler<bool>(dylib),
-        ControlValueOptionMessageHandler<int>(dylib),
-        ControlValueOptionMessageHandler<double>(dylib),
-        ControlValueOptionMessageHandler<String>(dylib),
-        ControlValueOptionMessageHandler<Null>(dylib),
-        ControlValueOptionMessageHandler(dylib),
-        GetParametersMessageHandler(dylib),
-        StartMessageHandler(dylib),
-        SyncReadMessageHandler(dylib),
-        CancelMessageHandler(dylib),
+        InitQueryHandler(dylib),
+        ExitQueryHandler(dylib),
+        GetDevicesQueryHandler(dylib),
+        OpenQueryHandler(dylib),
+        CloseQueryHandler(dylib),
+        GetOptionDescriptorQueryHandler(dylib),
+        GetAllOptionDescriptorsQueryHandler(dylib),
+        ControlValueOptionQueryHandler<bool>(dylib),
+        ControlValueOptionQueryHandler<int>(dylib),
+        ControlValueOptionQueryHandler<double>(dylib),
+        ControlValueOptionQueryHandler<String>(dylib),
+        ControlValueOptionQueryHandler<Null>(dylib),
+        ControlValueOptionQueryHandler(dylib),
+        GetParametersQueryHandler(dylib),
+        StartQueryHandler(dylib),
+        SyncReadQueryHandler(dylib),
+        CancelQueryHandler(dylib),
       ],
       context: SANEBusContext(),
     );
   }
 
   T _handle<T extends Response>(
-    Message<T> message,
+    Query<T> query,
   ) {
     if (bus == null) {
       throw StateError(
-        'The message bus has not been initialized, please call init() first.',
+        'The query bus has not been initialized, please call init() first.',
       );
     }
-    return bus!.handle(message);
+    return bus!.handle(query);
   }
 }

@@ -1,24 +1,24 @@
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class ExitMessage implements Message<ExitResponse> {
-  const ExitMessage();
+class ExitQuery implements Query<ExitResponse> {
+  const ExitQuery();
 }
 
 class ExitResponse implements Response {
   const ExitResponse();
 }
 
-class ExitMessageHandler
-    extends MessageHandler<ExitMessage, ExitResponse, SANEBusContext> {
-  const ExitMessageHandler(this.libsane);
+class ExitQueryHandler
+    extends QueryHandler<ExitQuery, ExitResponse, SANEBusContext> {
+  const ExitQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
-  ExitResponse handle(ExitMessage message, SANEBusContext context) {
+  ExitResponse handle(ExitQuery query, SANEBusContext context) {
     if (!context.initialized) throw SANENotInitializedError();
 
     context.initialized = false;

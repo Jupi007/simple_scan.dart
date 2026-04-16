@@ -1,57 +1,56 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:libsane/src/bus/message_bus.dart';
-import 'package:libsane/src/bus/message_bus_isolate.dart';
 import 'package:libsane/src/dylib.dart';
-import 'package:libsane/src/messages/cancel.dart';
-import 'package:libsane/src/messages/close.dart';
-import 'package:libsane/src/messages/control_option.dart';
-import 'package:libsane/src/messages/exit.dart';
-import 'package:libsane/src/messages/get_all_option_descriptors.dart';
-import 'package:libsane/src/messages/get_devices.dart';
-import 'package:libsane/src/messages/get_option_descriptor.dart';
-import 'package:libsane/src/messages/get_parameters.dart';
-import 'package:libsane/src/messages/init.dart';
-import 'package:libsane/src/messages/open.dart';
-import 'package:libsane/src/messages/read.dart';
-import 'package:libsane/src/messages/start.dart';
+import 'package:libsane/src/queries/cancel.dart';
+import 'package:libsane/src/queries/close.dart';
+import 'package:libsane/src/queries/control_option.dart';
+import 'package:libsane/src/queries/exit.dart';
+import 'package:libsane/src/queries/get_all_option_descriptors.dart';
+import 'package:libsane/src/queries/get_devices.dart';
+import 'package:libsane/src/queries/get_option_descriptor.dart';
+import 'package:libsane/src/queries/get_parameters.dart';
+import 'package:libsane/src/queries/init.dart';
+import 'package:libsane/src/queries/open.dart';
+import 'package:libsane/src/queries/read.dart';
+import 'package:libsane/src/queries/start.dart';
 import 'package:libsane/src/sane.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
 class IsolatedSANE implements SANE {
   @visibleForTesting
-  MessageBusIsolate? isolatedBus;
+  QueyBusIsolate? isolatedBus;
 
   @override
   Future<SANEVersion> init({AuthCallback? authCallback}) async {
     await _initBus();
-    final message = InitMessage(authCallback);
-    final response = await _handle(message);
+    final query = InitQuery(authCallback);
+    final response = await _handle(query);
     return response.version;
   }
 
   @override
   Future<void> exit() async {
-    await _handle(const ExitMessage());
+    await _handle(const ExitQuery());
     await isolatedBus?.exit();
     isolatedBus = null;
   }
 
   @override
   Future<List<SANEDevice>> getDevices({bool localOnly = true}) async {
-    final message = GetDevicesMessage(localOnly);
-    final response = await _handle(message);
+    final query = GetDevicesQuery(localOnly);
+    final response = await _handle(query);
     return response.devices;
   }
 
   @override
   Future<SANEHandle> open(String name) async {
-    final message = OpenMessage(name);
-    final response = await _handle(message);
+    final query = OpenQuery(name);
+    final response = await _handle(query);
     return response.handle;
   }
 
@@ -62,8 +61,8 @@ class IsolatedSANE implements SANE {
 
   @override
   Future<void> close(SANEHandle handle) async {
-    final message = CloseMessage(handle);
-    await _handle(message);
+    final query = CloseQuery(handle);
+    await _handle(query);
   }
 
   @override
@@ -71,8 +70,8 @@ class IsolatedSANE implements SANE {
     SANEHandle handle,
     int index,
   ) async {
-    final message = GetOptionDescriptorMessage(handle, index);
-    final response = await _handle(message);
+    final query = GetOptionDescriptorQuery(handle, index);
+    final response = await _handle(query);
     return response.optionDescriptor;
   }
 
@@ -80,8 +79,8 @@ class IsolatedSANE implements SANE {
   Future<List<SANEOptionDescriptor>> getAllOptionDescriptors(
     SANEHandle handle,
   ) async {
-    final message = GetAllOptionDescriptorsMessage(handle);
-    final response = await _handle(message);
+    final query = GetAllOptionDescriptorsQuery(handle);
+    final response = await _handle(query);
     return response.optionDescriptors;
   }
 
@@ -92,8 +91,8 @@ class IsolatedSANE implements SANE {
     required SANEControlAction action,
     bool? value,
   }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = await _handle(query);
     return response.optionResult;
   }
 
@@ -104,8 +103,8 @@ class IsolatedSANE implements SANE {
     required SANEControlAction action,
     int? value,
   }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = await _handle(query);
     return response.optionResult;
   }
 
@@ -116,8 +115,8 @@ class IsolatedSANE implements SANE {
     required SANEControlAction action,
     double? value,
   }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = await _handle(query);
     return response.optionResult;
   }
 
@@ -128,8 +127,8 @@ class IsolatedSANE implements SANE {
     required SANEControlAction action,
     String? value,
   }) async {
-    final message = ControlValueOptionMessage(handle, index, action, value);
-    final response = await _handle(message);
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = await _handle(query);
     return response.optionResult;
   }
 
@@ -138,40 +137,40 @@ class IsolatedSANE implements SANE {
     required SANEHandle handle,
     required int index,
   }) async {
-    final message = ControlValueOptionMessage(
+    final query = ControlValueOptionQuery(
       handle,
       index,
       SANEControlAction.setValue,
       null,
     );
-    final response = await _handle(message);
+    final response = await _handle(query);
     return response.optionResult;
   }
 
   @override
   Future<SANEParameters> getParameters(SANEHandle handle) async {
-    final message = GetParametersMessage(handle);
-    final response = await _handle(message);
+    final query = GetParametersQuery(handle);
+    final response = await _handle(query);
     return response.parameters;
   }
 
   @override
   Future<void> start(SANEHandle handle) async {
-    final message = StartMessage(handle);
-    await _handle(message);
+    final query = StartQuery(handle);
+    await _handle(query);
   }
 
   @override
   Future<Uint8List> read(SANEHandle handle, int bufferSize) async {
-    final message = IsolateReadMessage(handle, bufferSize);
-    final response = await _handle(message);
+    final query = IsolateReadQuery(handle, bufferSize);
+    final response = await _handle(query);
     return response.bytes.materialize().asUint8List();
   }
 
   @override
   Future<void> cancel(SANEHandle handle) async {
-    final message = CancelMessage(handle);
-    await _handle(message);
+    final query = CancelQuery(handle);
+    await _handle(query);
   }
 
   Future<void> _initBus() async {
@@ -179,26 +178,26 @@ class IsolatedSANE implements SANE {
       return;
     }
 
-    isolatedBus = await MessageBusIsolate.spawn(
-      () => MessageBus(
+    isolatedBus = await QueyBusIsolate.spawn(
+      () => QueryBus(
         handlers: [
-          InitMessageHandler(dylib),
-          ExitMessageHandler(dylib),
-          GetDevicesMessageHandler(dylib),
-          OpenMessageHandler(dylib),
-          CloseMessageHandler(dylib),
-          GetOptionDescriptorMessageHandler(dylib),
-          GetAllOptionDescriptorsMessageHandler(dylib),
-          ControlValueOptionMessageHandler<bool>(dylib),
-          ControlValueOptionMessageHandler<int>(dylib),
-          ControlValueOptionMessageHandler<double>(dylib),
-          ControlValueOptionMessageHandler<String>(dylib),
-          ControlValueOptionMessageHandler<Null>(dylib),
-          ControlValueOptionMessageHandler(dylib),
-          GetParametersMessageHandler(dylib),
-          StartMessageHandler(dylib),
-          IsolateReadMessageHandler(dylib),
-          CancelMessageHandler(dylib),
+          InitQueryHandler(dylib),
+          ExitQueryHandler(dylib),
+          GetDevicesQueryHandler(dylib),
+          OpenQueryHandler(dylib),
+          CloseQueryHandler(dylib),
+          GetOptionDescriptorQueryHandler(dylib),
+          GetAllOptionDescriptorsQueryHandler(dylib),
+          ControlValueOptionQueryHandler<bool>(dylib),
+          ControlValueOptionQueryHandler<int>(dylib),
+          ControlValueOptionQueryHandler<double>(dylib),
+          ControlValueOptionQueryHandler<String>(dylib),
+          ControlValueOptionQueryHandler<Null>(dylib),
+          ControlValueOptionQueryHandler(dylib),
+          GetParametersQueryHandler(dylib),
+          StartQueryHandler(dylib),
+          IsolateReadQueryHandler(dylib),
+          CancelQueryHandler(dylib),
         ],
         context: SANEBusContext(),
       ),
@@ -207,13 +206,13 @@ class IsolatedSANE implements SANE {
   }
 
   Future<T> _handle<T extends Response>(
-    Message<T> message,
+    Query<T> query,
   ) async {
     if (isolatedBus == null) {
       throw StateError(
-        'The isolated message bus has not been initialized, please call init() first.',
+        'The isolated query bus has not been initialized, please call init() first.',
       );
     }
-    return isolatedBus!.handle(message);
+    return isolatedBus!.handle(query);
   }
 }

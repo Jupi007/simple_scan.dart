@@ -45,13 +45,13 @@ sealed class SANEException implements Exception {
   const SANEException._();
   SANE_Status get _status;
 
-  String get message {
+  String get query {
     return dylib.sane_strstatus(_status).cast<Utf8>().toDartString();
   }
 
   @override
   String toString() {
-    return '$runtimeType: $message';
+    return '$runtimeType: $query';
   }
 }
 

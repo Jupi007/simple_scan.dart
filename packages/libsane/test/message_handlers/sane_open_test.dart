@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/extensions.dart';
-import 'package:libsane/src/messages/open.dart';
+import 'package:libsane/src/queries/open.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -18,11 +18,11 @@ void main() {
       final libsane = MockLibSANE();
       final context = SANEBusContext();
 
-      final handler = OpenMessageHandler(libsane);
-      const message = OpenMessage('test');
+      final handler = OpenQueryHandler(libsane);
+      const query = OpenQuery('test');
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -37,10 +37,10 @@ void main() {
         () => libsane.sane_open(any(), any()),
       ).thenReturn(SANE_Status.STATUS_IO_ERROR);
 
-      final handler = OpenMessageHandler(libsane);
-      const message = OpenMessage('test');
+      final handler = OpenQueryHandler(libsane);
+      const query = OpenQuery('test');
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANEIoException>()),
       );
     });
@@ -67,9 +67,9 @@ void main() {
         return SANE_Status.STATUS_GOOD;
       });
 
-      final handler = OpenMessageHandler(libsane);
-      const message = OpenMessage(deviceName);
-      final response = handler.handle(message, context);
+      final handler = OpenQueryHandler(libsane);
+      const query = OpenQuery(deviceName);
+      final response = handler.handle(query, context);
       expect(response.handle.deviceName, equals(deviceName));
     });
   });

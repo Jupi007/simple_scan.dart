@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/control_option.dart';
+import 'package:libsane/src/queries/control_option.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -20,63 +20,63 @@ void main() {
       final context = SANEBusContext();
       const handle = SANEHandle('deviceName');
 
-      final boolHandler = ControlValueOptionMessageHandler<bool>(libsane);
-      const boolMessage = ControlValueOptionMessage<bool>(
+      final boolHandler = ControlValueOptionQueryHandler<bool>(libsane);
+      const boolQuery = ControlValueOptionQuery<bool>(
         handle,
         0,
         SANEControlAction.setAuto,
         null,
       );
       expect(
-        () => boolHandler.handle(boolMessage, context),
+        () => boolHandler.handle(boolQuery, context),
         throwsA(isA<SANENotInitializedError>()),
       );
 
-      final intHandler = ControlValueOptionMessageHandler<int>(libsane);
-      const intMessage = ControlValueOptionMessage<int>(
+      final intHandler = ControlValueOptionQueryHandler<int>(libsane);
+      const intQuery = ControlValueOptionQuery<int>(
         handle,
         0,
         SANEControlAction.setAuto,
         null,
       );
       expect(
-        () => intHandler.handle(intMessage, context),
+        () => intHandler.handle(intQuery, context),
         throwsA(isA<SANENotInitializedError>()),
       );
 
-      final doubleHandler = ControlValueOptionMessageHandler<double>(libsane);
-      const doubleMessage = ControlValueOptionMessage<double>(
+      final doubleHandler = ControlValueOptionQueryHandler<double>(libsane);
+      const doubleQuery = ControlValueOptionQuery<double>(
         handle,
         0,
         SANEControlAction.setAuto,
         null,
       );
       expect(
-        () => doubleHandler.handle(doubleMessage, context),
+        () => doubleHandler.handle(doubleQuery, context),
         throwsA(isA<SANENotInitializedError>()),
       );
 
-      final stringHandler = ControlValueOptionMessageHandler<String>(libsane);
-      const stringMessage = ControlValueOptionMessage<String>(
+      final stringHandler = ControlValueOptionQueryHandler<String>(libsane);
+      const stringQuery = ControlValueOptionQuery<String>(
         handle,
         0,
         SANEControlAction.setAuto,
         null,
       );
       expect(
-        () => stringHandler.handle(stringMessage, context),
+        () => stringHandler.handle(stringQuery, context),
         throwsA(isA<SANENotInitializedError>()),
       );
 
-      final nullHandler = ControlValueOptionMessageHandler<Null>(libsane);
-      const nullMessage = ControlValueOptionMessage<Null>(
+      final nullHandler = ControlValueOptionQueryHandler<Null>(libsane);
+      const nullQuery = ControlValueOptionQuery<Null>(
         handle,
         0,
         SANEControlAction.setAuto,
         null,
       );
       expect(
-        () => nullHandler.handle(nullMessage, context),
+        () => nullHandler.handle(nullQuery, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -107,15 +107,15 @@ void main() {
         () => libsane.sane_control_option(any(), any(), any(), any(), any()),
       ).thenReturn(SANE_Status.STATUS_IO_ERROR);
 
-      final handler = ControlValueOptionMessageHandler<String>(libsane);
-      final message = ControlValueOptionMessage<String>(
+      final handler = ControlValueOptionQueryHandler<String>(libsane);
+      final query = ControlValueOptionQuery<String>(
         handle,
         optionIndex,
         SANEControlAction.setValue,
         'test',
       );
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANEIoException>()),
       );
 
@@ -154,14 +154,14 @@ void main() {
         return SANE_Status.STATUS_GOOD;
       });
 
-      final handler = ControlValueOptionMessageHandler<String>(libsane);
-      final message = ControlValueOptionMessage<String>(
+      final handler = ControlValueOptionQueryHandler<String>(libsane);
+      final query = ControlValueOptionQuery<String>(
         handle,
         optionIndex,
         SANEControlAction.setValue,
         'test',
       );
-      final response = handler.handle(message, context);
+      final response = handler.handle(query, context);
       expect(response.optionResult.value, equals('test'));
 
       ffi.calloc.free(descriptorPointer);

@@ -5,24 +5,24 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
 final freePointer = ffi.DynamicLibrary.process()
     .lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
   'free',
 );
 
-class _ReadMessage<R extends Response> implements Message<R> {
-  const _ReadMessage(this.handle, this.bufferSize);
+class _ReadQuery<R extends Response> implements Query<R> {
+  const _ReadQuery(this.handle, this.bufferSize);
   final SANEHandle handle;
   final int bufferSize;
 }
 
-class SyncReadMessage extends _ReadMessage<SyncReadResponse> {
-  const SyncReadMessage(super.handle, super.bufferSize);
+class SyncReadQuery extends _ReadQuery<SyncReadResponse> {
+  const SyncReadQuery(super.handle, super.bufferSize);
 }
 
 class SyncReadResponse implements Response {
@@ -30,24 +30,24 @@ class SyncReadResponse implements Response {
   final Uint8List bytes;
 }
 
-class SyncReadMessageHandler
-    extends MessageHandler<SyncReadMessage, SyncReadResponse, SANEBusContext> {
-  const SyncReadMessageHandler(this.libsane);
+class SyncReadQueryHandler
+    extends QueryHandler<SyncReadQuery, SyncReadResponse, SANEBusContext> {
+  const SyncReadQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
   SyncReadResponse handle(
-    SyncReadMessage message,
+    SyncReadQuery query,
     SANEBusContext context,
   ) {
     return SyncReadResponse(
-      _read(libsane, context, message.handle, message.bufferSize),
+      _read(libsane, context, query.handle, query.bufferSize),
     );
   }
 }
 
-class IsolateReadMessage extends _ReadMessage<IsolateReadResponse> {
-  const IsolateReadMessage(super.handle, super.bufferSize);
+class IsolateReadQuery extends _ReadQuery<IsolateReadResponse> {
+  const IsolateReadQuery(super.handle, super.bufferSize);
 }
 
 class IsolateReadResponse implements Response {
@@ -55,19 +55,19 @@ class IsolateReadResponse implements Response {
   final TransferableTypedData bytes;
 }
 
-class IsolateReadMessageHandler extends MessageHandler<IsolateReadMessage,
+class IsolateReadQueryHandler extends QueryHandler<IsolateReadQuery,
     IsolateReadResponse, SANEBusContext> {
-  const IsolateReadMessageHandler(this.libsane);
+  const IsolateReadQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
   IsolateReadResponse handle(
-    IsolateReadMessage message,
+    IsolateReadQuery query,
     SANEBusContext context,
   ) {
     return IsolateReadResponse(
       TransferableTypedData.fromList([
-        _read(libsane, context, message.handle, message.bufferSize),
+        _read(libsane, context, query.handle, query.bufferSize),
       ]),
     );
   }

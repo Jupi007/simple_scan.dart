@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/read.dart';
+import 'package:libsane/src/queries/read.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -19,11 +19,11 @@ void main() {
       final context = SANEBusContext();
       const handle = SANEHandle('deviceName');
 
-      final handler = SyncReadMessageHandler(libsane);
-      const message = SyncReadMessage(handle, 0);
+      final handler = SyncReadQueryHandler(libsane);
+      const query = SyncReadQuery(handle, 0);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -38,11 +38,11 @@ void main() {
           .createSANEHandle(nativeHandle.value, 'device-name');
 
       for (final bufferSize in [0, -128]) {
-        final handler = SyncReadMessageHandler(libsane);
-        final message = SyncReadMessage(handle, bufferSize);
+        final handler = SyncReadQueryHandler(libsane);
+        final query = SyncReadQuery(handle, bufferSize);
 
         expect(
-          () => handler.handle(message, context),
+          () => handler.handle(query, context),
           throwsA(isA<ArgumentError>()),
         );
       }
@@ -63,9 +63,9 @@ void main() {
         () => libsane.sane_read(any(), any(), any(), any()),
       ).thenReturn(SANE_Status.STATUS_EOF);
 
-      final handler = SyncReadMessageHandler(libsane);
-      final message = SyncReadMessage(handle, 128);
-      final response = handler.handle(message, context);
+      final handler = SyncReadQueryHandler(libsane);
+      final query = SyncReadQuery(handle, 128);
+      final response = handler.handle(query, context);
       expect(response.bytes.isEmpty, isTrue);
 
       ffi.calloc.free(nativeHandle);
@@ -96,9 +96,9 @@ void main() {
         return SANE_Status.STATUS_GOOD;
       });
 
-      final handler = SyncReadMessageHandler(libsane);
-      final message = SyncReadMessage(handle, 128);
-      final response = handler.handle(message, context);
+      final handler = SyncReadQueryHandler(libsane);
+      final query = SyncReadQuery(handle, 128);
+      final response = handler.handle(query, context);
       expect(response.bytes.length, equals(128));
 
       ffi.calloc.free(nativeHandle);

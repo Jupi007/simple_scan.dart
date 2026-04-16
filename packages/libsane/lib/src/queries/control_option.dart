@@ -2,16 +2,16 @@ import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class ControlValueOptionMessage<T>
-    implements Message<ControlValueOptionResponse<T>> {
-  const ControlValueOptionMessage(
+class ControlValueOptionQuery<T>
+    implements Query<ControlValueOptionResponse<T>> {
+  const ControlValueOptionQuery(
     this.handle,
     this.index,
     this.action,
@@ -29,25 +29,23 @@ class ControlValueOptionResponse<T> implements Response {
   final SANEOptionResult<T> optionResult;
 }
 
-class ControlValueOptionMessageHandler<T> extends MessageHandler<
-    ControlValueOptionMessage<T>,
-    ControlValueOptionResponse<T>,
-    SANEBusContext> {
-  const ControlValueOptionMessageHandler(this.libsane);
+class ControlValueOptionQueryHandler<T> extends QueryHandler<
+    ControlValueOptionQuery<T>, ControlValueOptionResponse<T>, SANEBusContext> {
+  const ControlValueOptionQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
   ControlValueOptionResponse<T> handle(
-    ControlValueOptionMessage message,
+    ControlValueOptionQuery query,
     SANEBusContext context,
   ) {
     if (!context.initialized) throw SANENotInitializedError();
 
-    final nativeHandle = context.nativeHandles.get(message.handle);
+    final nativeHandle = context.nativeHandles.get(query.handle);
     final optionDescriptor = libsane
-        .sane_get_option_descriptor(nativeHandle, message.index)
+        .sane_get_option_descriptor(nativeHandle, query.index)
         .ref
-        .toSANEOptionDescriptorWithIndex(message.index);
+        .toSANEOptionDescriptorWithIndex(query.index);
     final optionType = optionDescriptor.type;
     final optionSize = optionDescriptor.size;
 
@@ -64,8 +62,8 @@ class ControlValueOptionMessageHandler<T> extends MessageHandler<
       };
     }();
 
-    if (message.action == SANEControlAction.setValue) {
-      final value = message.value;
+    if (query.action == SANEControlAction.setValue) {
+      final value = query.value;
       switch (optionType) {
         case SANEOptionValueType.bool when value is bool:
           (valuePointer as ffi.Pointer<SANE_Bool>).value = value.toSANEBool();
@@ -90,13 +88,13 @@ class ControlValueOptionMessageHandler<T> extends MessageHandler<
 
     final status = libsane.sane_control_option(
       nativeHandle,
-      message.index,
-      message.action.toNativeSANEAction(),
+      query.index,
+      query.action.toNativeSANEAction(),
       valuePointer.cast<ffi.Void>(),
       infoPointer,
     );
     logger.finest(
-      'sane_control_option(${optionDescriptor.name}(${message.index}), ${message.action}, ${message.value}) -> ${status.name}',
+      'sane_control_option(${optionDescriptor.name}(${query.index}), ${query.action}, ${query.value}) -> ${status.name}',
     );
 
     status.check();

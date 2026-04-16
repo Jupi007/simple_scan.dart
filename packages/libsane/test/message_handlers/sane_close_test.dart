@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/close.dart';
+import 'package:libsane/src/queries/close.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:test/test.dart';
 
@@ -18,11 +18,11 @@ void main() {
       final context = SANEBusContext();
       const handle = SANEHandle('deviceName');
 
-      final handler = CloseMessageHandler(libsane);
-      const message = CloseMessage(handle);
+      final handler = CloseQueryHandler(libsane);
+      const query = CloseQuery(handle);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -36,16 +36,16 @@ void main() {
       final handle = context.nativeHandles
           .createSANEHandle(nativeHandle.value, 'device-name');
 
-      final handler = CloseMessageHandler(libsane);
-      final message = CloseMessage(handle);
+      final handler = CloseQueryHandler(libsane);
+      final query = CloseQuery(handle);
 
-      expect(() => handler.handle(message, context), returnsNormally);
+      expect(() => handler.handle(query, context), returnsNormally);
       expect(
         () => context.nativeHandles.get(handle),
         throwsA(isA<SANEHandleClosedError>()),
       );
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANEHandleClosedError>()),
       );
 

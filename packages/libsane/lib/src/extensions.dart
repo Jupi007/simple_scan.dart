@@ -4,19 +4,6 @@ import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/structures.dart';
-import 'package:logging/logging.dart';
-
-extension LoggerExtension on Logger {
-  void redirect(LogRecord record) {
-    log(
-      record.level,
-      record.message,
-      record.error,
-      record.stackTrace,
-      record.zone,
-    );
-  }
-}
 
 extension CheckNativeSANEStatusExtension on SANE_Status {
   /// Throws [SANEException] if the status is not [SANE_Status.STATUS_GOOD].

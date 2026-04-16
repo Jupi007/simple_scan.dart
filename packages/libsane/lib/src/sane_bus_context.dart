@@ -1,9 +1,9 @@
 import 'dart:ffi' as ffi;
 
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
 class NativeSANEHandleCollection {
   final Map<SANEHandle, SANE_Handle> _handlePointers = {};

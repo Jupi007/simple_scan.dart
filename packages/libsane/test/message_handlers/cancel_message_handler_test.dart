@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/cancel.dart';
+import 'package:libsane/src/queries/cancel.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:test/test.dart';
 
@@ -18,11 +18,11 @@ void main() {
       final context = SANEBusContext();
       const handle = SANEHandle('deviceName');
 
-      final handler = CancelMessageHandler(libsane);
-      const message = CancelMessage(handle);
+      final handler = CancelQueryHandler(libsane);
+      const query = CancelQuery(handle);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -36,11 +36,11 @@ void main() {
       final handle = context.nativeHandles
           .createSANEHandle(nativeHandle.value, 'device-name');
 
-      final handler = CancelMessageHandler(libsane);
-      final message = CancelMessage(handle);
+      final handler = CancelQueryHandler(libsane);
+      final query = CancelQuery(handle);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         returnsNormally,
       );
 

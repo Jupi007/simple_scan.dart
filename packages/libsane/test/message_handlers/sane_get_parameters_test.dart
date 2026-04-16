@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/get_parameters.dart';
+import 'package:libsane/src/queries/get_parameters.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -20,11 +20,11 @@ void main() {
       final context = SANEBusContext();
       const handle = SANEHandle('deviceName');
 
-      final handler = GetParametersMessageHandler(libsane);
-      const message = GetParametersMessage(handle);
+      final handler = GetParametersQueryHandler(libsane);
+      const query = GetParametersQuery(handle);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -42,10 +42,10 @@ void main() {
         () => libsane.sane_get_parameters(any(), any()),
       ).thenReturn(SANE_Status.STATUS_IO_ERROR);
 
-      final handler = GetParametersMessageHandler(libsane);
-      final message = GetParametersMessage(handle);
+      final handler = GetParametersQueryHandler(libsane);
+      final query = GetParametersQuery(handle);
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANEIoException>()),
       );
 
@@ -75,9 +75,9 @@ void main() {
         return SANE_Status.STATUS_GOOD;
       });
 
-      final handler = GetParametersMessageHandler(libsane);
-      final message = GetParametersMessage(handle);
-      final response = handler.handle(message, context);
+      final handler = GetParametersQueryHandler(libsane);
+      final query = GetParametersQuery(handle);
+      final response = handler.handle(query, context);
       expect(response.parameters.pixelsPerLine, pixelsPerLine);
     });
   });

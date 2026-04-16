@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/exit.dart';
+import 'package:libsane/src/queries/exit.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:test/test.dart';
 
@@ -17,11 +17,11 @@ void main() {
       final libsane = MockLibSANE();
       final context = SANEBusContext();
 
-      final handler = ExitMessageHandler(libsane);
-      const message = ExitMessage();
+      final handler = ExitQueryHandler(libsane);
+      const query = ExitQuery();
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -35,11 +35,11 @@ void main() {
       final handle = context.nativeHandles
           .createSANEHandle(nativeHandle.value, 'device-name');
 
-      final handler = ExitMessageHandler(libsane);
-      const message = ExitMessage();
+      final handler = ExitQueryHandler(libsane);
+      const query = ExitQuery();
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         returnsNormally,
       );
       expect(

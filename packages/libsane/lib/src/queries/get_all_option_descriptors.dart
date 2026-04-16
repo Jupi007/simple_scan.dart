@@ -1,16 +1,16 @@
 import 'dart:ffi' as ffi;
 
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class GetAllOptionDescriptorsMessage
-    implements Message<GetAllOptionDescriptorsResponse> {
-  const GetAllOptionDescriptorsMessage(this.handle);
+class GetAllOptionDescriptorsQuery
+    implements Query<GetAllOptionDescriptorsResponse> {
+  const GetAllOptionDescriptorsQuery(this.handle);
   final SANEHandle handle;
 }
 
@@ -19,16 +19,16 @@ class GetAllOptionDescriptorsResponse implements Response {
   final List<SANEOptionDescriptor> optionDescriptors;
 }
 
-class GetAllOptionDescriptorsMessageHandler extends MessageHandler<
-    GetAllOptionDescriptorsMessage,
+class GetAllOptionDescriptorsQueryHandler extends QueryHandler<
+    GetAllOptionDescriptorsQuery,
     GetAllOptionDescriptorsResponse,
     SANEBusContext> {
-  const GetAllOptionDescriptorsMessageHandler(this.libsane);
+  const GetAllOptionDescriptorsQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
   GetAllOptionDescriptorsResponse handle(
-    GetAllOptionDescriptorsMessage message,
+    GetAllOptionDescriptorsQuery query,
     SANEBusContext context,
   ) {
     if (!context.initialized) throw SANENotInitializedError();
@@ -37,7 +37,7 @@ class GetAllOptionDescriptorsMessageHandler extends MessageHandler<
 
     for (var i = 0;; i++) {
       final optionDescriptorPointer = libsane.sane_get_option_descriptor(
-        context.nativeHandles.get(message.handle),
+        context.nativeHandles.get(query.handle),
         i,
       );
       logger.finest('sane_get_option_descriptor($i)');

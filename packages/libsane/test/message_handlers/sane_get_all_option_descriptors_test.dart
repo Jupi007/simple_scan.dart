@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/get_all_option_descriptors.dart';
+import 'package:libsane/src/queries/get_all_option_descriptors.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -20,11 +20,11 @@ void main() {
       final context = SANEBusContext();
       const handle = SANEHandle('deviceName');
 
-      final handler = GetAllOptionDescriptorsMessageHandler(libsane);
-      const message = GetAllOptionDescriptorsMessage(handle);
+      final handler = GetAllOptionDescriptorsQueryHandler(libsane);
+      const query = GetAllOptionDescriptorsQuery(handle);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -53,9 +53,9 @@ void main() {
         return ffi.nullptr;
       });
 
-      final handler = GetAllOptionDescriptorsMessageHandler(libsane);
-      final message = GetAllOptionDescriptorsMessage(handle);
-      final response = handler.handle(message, context);
+      final handler = GetAllOptionDescriptorsQueryHandler(libsane);
+      final query = GetAllOptionDescriptorsQuery(handle);
+      final response = handler.handle(query, context);
       expect(response.optionDescriptors.length, equals(descriptorLenght));
 
       for (final pointer in descriptorPointers) {

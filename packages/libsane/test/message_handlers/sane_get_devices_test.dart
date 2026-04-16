@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/get_devices.dart';
+import 'package:libsane/src/queries/get_devices.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -19,11 +19,11 @@ void main() {
       final libsane = MockLibSANE();
       final context = SANEBusContext();
 
-      final handler = GetDevicesMessageHandler(libsane);
-      const message = GetDevicesMessage(true);
+      final handler = GetDevicesQueryHandler(libsane);
+      const query = GetDevicesQuery(true);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -38,10 +38,10 @@ void main() {
         () => libsane.sane_get_devices(any(), any()),
       ).thenReturn(SANE_Status.STATUS_NO_MEM);
 
-      final handler = GetDevicesMessageHandler(libsane);
-      const message = GetDevicesMessage(true);
+      final handler = GetDevicesQueryHandler(libsane);
+      const query = GetDevicesQuery(true);
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENoMemoryException>()),
       );
     });
@@ -66,9 +66,9 @@ void main() {
         return SANE_Status.STATUS_GOOD;
       });
 
-      final handler = GetDevicesMessageHandler(libsane);
-      const message = GetDevicesMessage(true);
-      final response = handler.handle(message, context);
+      final handler = GetDevicesQueryHandler(libsane);
+      const query = GetDevicesQuery(true);
+      final response = handler.handle(query, context);
       expect(response.devices.length, equals(0));
 
       ffi.calloc.free(emptyDeviceArray);
@@ -105,9 +105,9 @@ void main() {
         return SANE_Status.STATUS_GOOD;
       });
 
-      final handler = GetDevicesMessageHandler(libsane);
-      const message = GetDevicesMessage(true);
-      final response = handler.handle(message, context);
+      final handler = GetDevicesQueryHandler(libsane);
+      const query = GetDevicesQuery(true);
+      final response = handler.handle(query, context);
       expect(response.devices.length, equals(2));
 
       freeDevicePtrArray(deviceArray);

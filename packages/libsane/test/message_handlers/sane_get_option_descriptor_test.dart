@@ -3,7 +3,7 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/messages/get_option_descriptor.dart';
+import 'package:libsane/src/queries/get_option_descriptor.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -20,11 +20,11 @@ void main() {
       final context = SANEBusContext();
       const handle = SANEHandle('deviceName');
 
-      final handler = GetOptionDescriptorMessageHandler(libsane);
-      const message = GetOptionDescriptorMessage(handle, 0);
+      final handler = GetOptionDescriptorQueryHandler(libsane);
+      const query = GetOptionDescriptorQuery(handle, 0);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANENotInitializedError>()),
       );
     });
@@ -47,9 +47,9 @@ void main() {
         return descriptorPointer;
       });
 
-      final handler = GetOptionDescriptorMessageHandler(libsane);
-      final message = GetOptionDescriptorMessage(handle, descriptorIndex);
-      final response = handler.handle(message, context);
+      final handler = GetOptionDescriptorQueryHandler(libsane);
+      final query = GetOptionDescriptorQuery(handle, descriptorIndex);
+      final response = handler.handle(query, context);
       expect(response.optionDescriptor!.index, equals(descriptorIndex));
 
       ffi.calloc.free(descriptorPointer);
@@ -69,9 +69,9 @@ void main() {
         () => libsane.sane_get_option_descriptor(any(), any()),
       ).thenReturn(ffi.nullptr);
 
-      final handler = GetOptionDescriptorMessageHandler(libsane);
-      final message = GetOptionDescriptorMessage(handle, 1);
-      final response = handler.handle(message, context);
+      final handler = GetOptionDescriptorQueryHandler(libsane);
+      final query = GetOptionDescriptorQuery(handle, 1);
+      final response = handler.handle(query, context);
       expect(response.optionDescriptor, equals(null));
 
       ffi.calloc.free(nativeHandle);

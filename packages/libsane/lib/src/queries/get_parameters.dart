@@ -2,15 +2,15 @@ import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
-import 'package:libsane/src/bus/message_bus.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
-class GetParametersMessage implements Message<GetParametersResponse> {
-  const GetParametersMessage(this.handle);
+class GetParametersQuery implements Query<GetParametersResponse> {
+  const GetParametersQuery(this.handle);
   final SANEHandle handle;
 }
 
@@ -19,14 +19,14 @@ class GetParametersResponse implements Response {
   final SANEParameters parameters;
 }
 
-class GetParametersMessageHandler extends MessageHandler<GetParametersMessage,
+class GetParametersQueryHandler extends QueryHandler<GetParametersQuery,
     GetParametersResponse, SANEBusContext> {
-  const GetParametersMessageHandler(this.libsane);
+  const GetParametersQueryHandler(this.libsane);
   final LibSANE libsane;
 
   @override
   GetParametersResponse handle(
-    GetParametersMessage message,
+    GetParametersQuery query,
     SANEBusContext context,
   ) {
     if (!context.initialized) throw SANENotInitializedError();
@@ -35,7 +35,7 @@ class GetParametersMessageHandler extends MessageHandler<GetParametersMessage,
 
     try {
       final status = libsane.sane_get_parameters(
-        context.nativeHandles.get(message.handle),
+        context.nativeHandles.get(query.handle),
         nativeParametersPointer,
       );
       logger.finest('sane_get_parameters() -> ${status.name}');

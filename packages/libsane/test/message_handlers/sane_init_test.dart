@@ -4,7 +4,7 @@ import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/extensions.dart';
-import 'package:libsane/src/messages/init.dart';
+import 'package:libsane/src/queries/init.dart';
 import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -26,9 +26,9 @@ void main() {
         return SANE_Status.STATUS_GOOD;
       });
 
-      final handler = InitMessageHandler(libsane);
-      const message = InitMessage(null);
-      final response = handler.handle(message, context);
+      final handler = InitQueryHandler(libsane);
+      const query = InitQuery(null);
+      final response = handler.handle(query, context);
 
       expect(context.initialized, isTrue);
       expect(response.version.toString(), equals('1.2.3'));
@@ -55,9 +55,9 @@ void main() {
         }
 
         final context = SANEBusContext();
-        final handler = InitMessageHandler(libsane);
-        final message = InitMessage(authCallback);
-        handler.handle(message, context);
+        final handler = InitQueryHandler(libsane);
+        final query = InitQuery(authCallback);
+        handler.handle(query, context);
 
         final capturedArguments =
             verify(() => libsane.sane_init(captureAny(), captureAny()))
@@ -123,10 +123,10 @@ void main() {
       when(() => libsane.sane_init(any(), any()))
           .thenReturn(SANE_Status.STATUS_IO_ERROR);
 
-      final handler = InitMessageHandler(libsane);
-      const message = InitMessage(null);
+      final handler = InitQueryHandler(libsane);
+      const query = InitQuery(null);
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANEIoException>()),
       );
       expect(context.initialized, isFalse);
@@ -137,11 +137,11 @@ void main() {
       final context = SANEBusContext();
       context.initialized = true;
 
-      final handler = InitMessageHandler(libsane);
-      const message = InitMessage(null);
+      final handler = InitQueryHandler(libsane);
+      const query = InitQuery(null);
 
       expect(
-        () => handler.handle(message, context),
+        () => handler.handle(query, context),
         throwsA(isA<SANEAlreadyInitializedError>()),
       );
     });
