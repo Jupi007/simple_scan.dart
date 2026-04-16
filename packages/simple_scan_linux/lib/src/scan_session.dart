@@ -27,7 +27,7 @@ final class ScanSessionLinux extends ScanSession {
     var lastFrame = false;
     ScanBuffer? scanBuffer;
 
-    outerLoop:
+    frameLoop:
     do {
       await sane.start(handle);
 
@@ -55,7 +55,7 @@ final class ScanSessionLinux extends ScanSession {
           readBytes = await sane.read(handle, parameters.bytesPerLine);
           if (readBytes.isEmpty) break;
         } on SANECancelledException catch (_) {
-          break outerLoop;
+          break frameLoop;
         }
 
         scanBuffer.appendBytes(readBytes, parameters.format);
