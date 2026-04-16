@@ -6,54 +6,22 @@ import 'package:simple_scan_platform_interface/simple_scan_platform_interface.da
 import 'constants.dart';
 import 'extensions.dart';
 
-class LinuxScanSnapshot implements ScanSnapshot {
-  const LinuxScanSnapshot({
-    required this.buffer,
-    required this.updatedLinesStart,
-    required this.updatedLinesEnd,
-  });
-
-  final ScanBuffer buffer;
-
-  @override
-  final int updatedLinesStart;
-
-  @override
-  final int updatedLinesEnd;
-
-  Uint8List get fullPageBytes {
-    return buffer.toBytes();
-  }
-
-  int get pageWidth => buffer.width;
-
-  int get pageHeight => buffer.height;
-
-  @override
-  Uint8List get updatedBytesView =>
-      buffer.linesView(updatedLinesStart, updatedLinesEnd);
-}
-
-class UpdatedLines {
-  const UpdatedLines(
-    this.start,
-    this.end,
-  );
-
-  final int start;
-  final int end;
-}
-
-abstract interface class ScanBuffer {
+abstract class ScanBuffer {
   int get width;
   int get height;
-  UpdatedLines appendBytes(Uint8List bytes, SANEFrameFormat frameFormat);
+  void appendBytes(Uint8List bytes, SANEFrameFormat frameFormat);
   Uint8List toBytes();
-  Uint8List linesView(int start, int end);
-  // TODO Array access?
+
+  ScanPage toScanPage() {
+    return ScanPage(
+      height: height,
+      width: width,
+      bytes: toBytes(),
+    );
+  }
 }
 
-class FixedScanBuffer implements ScanBuffer {
+class FixedScanBuffer extends ScanBuffer {
   FixedScanBuffer({
     required this.width,
     required this.height,
@@ -66,27 +34,18 @@ class FixedScanBuffer implements ScanBuffer {
   final Uint8List _bytes;
 
   @override
-  Uint8List linesView(int start, int end) {
-    assert(start >= 0 && start < height);
-    assert(end > 0 && end <= height);
-    final viewStart = width * 3 * start;
-    final viewEnd = width * 3 * end;
-    return Uint8List.sublistView(_bytes, viewStart, viewEnd);
-  }
-
-  @override
   Uint8List toBytes() => _bytes;
 
   int _offsetInFrame = 0;
   SANEFrameFormat? _previousFrameFormat;
 
   @override
-  UpdatedLines appendBytes(Uint8List bytes, SANEFrameFormat frameFormat) {
+  void appendBytes(Uint8List bytes, SANEFrameFormat frameFormat) {
     if (_previousFrameFormat != frameFormat) {
       _offsetInFrame = 0;
       _previousFrameFormat = frameFormat;
     }
-    final start = _offsetInFrame ~/ (width * 3);
+    // TODO: something wrong here
     switch (frameFormat) {
       case SANEFrameFormat.rgb:
         for (var i = 0; i < bytes.length; i++) {
@@ -115,12 +74,10 @@ class FixedScanBuffer implements ScanBuffer {
         _offsetInFrame += bytes.length * 3;
         break;
     }
-    final end = (_offsetInFrame - 1) ~/ (width * 3);
-    return UpdatedLines(start, end);
   }
 }
 
-class HandScanBuffer implements ScanBuffer {
+class HandScanBuffer extends ScanBuffer {
   HandScanBuffer({
     required this.width,
   });
@@ -128,22 +85,6 @@ class HandScanBuffer implements ScanBuffer {
   final int width;
   int get height => _linesBytes.length;
   final List<Uint8List> _linesBytes = <Uint8List>[];
-
-  @override
-  Uint8List linesView(int start, int end) {
-    if (start + 1 == end) {
-      return _linesBytes[start];
-    }
-
-    final buffer = Uint8List(width * 3);
-    var offset = 0;
-    for (var i = start; i < end; i++) {
-      final lineBytes = _linesBytes[i];
-      buffer.setRange(offset, offset + lineBytes.length, lineBytes);
-      offset += lineBytes.length;
-    }
-    return buffer;
-  }
 
   @override
   Uint8List toBytes() {
@@ -160,12 +101,11 @@ class HandScanBuffer implements ScanBuffer {
   SANEFrameFormat? _previousFrameFormat;
 
   @override
-  UpdatedLines appendBytes(Uint8List bytes, SANEFrameFormat frameFormat) {
+  void appendBytes(Uint8List bytes, SANEFrameFormat frameFormat) {
     if (_previousFrameFormat != frameFormat) {
       _offsetInFrame = 0;
       _previousFrameFormat = frameFormat;
     }
-    final start = _offsetInFrame ~/ _bytesPerLine;
     switch (frameFormat) {
       case SANEFrameFormat.rgb:
         for (var i = 0; i < bytes.length; i++) {
@@ -200,8 +140,6 @@ class HandScanBuffer implements ScanBuffer {
         _offsetInFrame += bytes.length * 3;
         break;
     }
-    final end = (_offsetInFrame - 1) ~/ _bytesPerLine;
-    return UpdatedLines(start, end);
   }
 
   int get _bytesPerLine => width * 3;

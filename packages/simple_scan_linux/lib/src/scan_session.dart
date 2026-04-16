@@ -19,7 +19,7 @@ final class ScanSessionLinux extends ScanSession {
 
   bool _closed = false;
 
-  Stream<ScanSnapshot> scan(ScanOptions options) async* {
+  Future<ScanPage> scan(ScanOptions options) async {
     _checkIfClosed();
 
     await _applyOptions(options);
@@ -57,18 +57,14 @@ final class ScanSessionLinux extends ScanSession {
         } on SANECancelledException catch (_) {
           break outerLoop;
         }
-        final updatedLines =
-            scanBuffer.appendBytes(readBytes, parameters.format);
 
-        yield LinuxScanSnapshot(
-          buffer: scanBuffer,
-          updatedLinesStart: updatedLines.start,
-          updatedLinesEnd: updatedLines.end,
-        );
+        scanBuffer.appendBytes(readBytes, parameters.format);
       }
     } while (!lastFrame);
 
     await sane.cancel(handle);
+
+    return scanBuffer.toScanPage();
   }
 
   Future<void> _applyOptions(ScanOptions options) async {

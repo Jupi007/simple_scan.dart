@@ -32,7 +32,7 @@ abstract base class SimpleScanPlatform {
 }
 
 abstract base class ScanSession {
-  Stream<ScanSnapshot> scan(ScanOptions options) {
+  Future<ScanPage> scan(ScanOptions options) {
     throw UnimplementedError('scan() has not been implemented.');
   }
 

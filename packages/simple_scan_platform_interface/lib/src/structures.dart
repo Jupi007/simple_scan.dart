@@ -47,11 +47,14 @@ class ScanOptionPageSize {
   final double height;
 }
 
-abstract interface class ScanSnapshot {
-  int get pageWidth;
-  int get pageHeight;
-  int get updatedLinesStart;
-  int get updatedLinesEnd;
-  Uint8List get updatedBytesView;
-  Uint8List get fullPageBytes;
+class ScanPage {
+  const ScanPage({
+    required this.height,
+    required this.width,
+    required this.bytes,
+  });
+
+  final int width;
+  final int height;
+  final Uint8List bytes;
 }

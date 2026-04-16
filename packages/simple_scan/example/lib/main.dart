@@ -19,23 +19,21 @@ void main(List<String> args) async {
   final devices = await simpleScan.listDevices();
   final scanSession = await simpleScan.openSession(devices[1].id);
 
-  final scanResult = await scanSession
-      .scan(
-        const ScanOptions(
-          color: true,
-          dpi: 100,
-          pageSize: null,
-        ),
-      )
-      .last;
+  final scanResult = await scanSession.scan(
+    const ScanOptions(
+      color: true,
+      dpi: 100,
+      pageSize: null,
+    ),
+  );
 
   await scanSession.close();
   await simpleScan.dispose();
 
   final file = File('./output.ppm');
   file.writeAsStringSync(
-    'P6\n${scanResult.pageWidth} ${scanResult.pageHeight}\n255\n',
+    'P6\n${scanResult.width} ${scanResult.height}\n255\n',
     mode: FileMode.write,
   );
-  file.writeAsBytesSync(scanResult.fullPageBytes, mode: FileMode.append);
+  file.writeAsBytesSync(scanResult.bytes, mode: FileMode.append);
 }
