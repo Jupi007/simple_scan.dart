@@ -2,6 +2,7 @@ import 'dart:ffi' as ffi;
 
 import 'package:libsane/src/bindings.g.dart';
 import 'package:libsane/src/bus/message_bus.dart';
+import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
 import 'package:libsane/src/sane_bus_context.dart';
@@ -30,6 +31,8 @@ class GetAllOptionDescriptorsMessageHandler extends MessageHandler<
     GetAllOptionDescriptorsMessage message,
     SANEBusContext context,
   ) {
+    if (!context.initialized) throw SANENotInitializedError();
+
     final optionDescriptors = <SANEOptionDescriptor>[];
 
     for (var i = 0;; i++) {
