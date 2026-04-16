@@ -1,6 +1,6 @@
 class BusContext {}
 
-class MessageBus<C extends BusContext> {
+class MessageBus {
   MessageBus({
     required this.handlers,
     required this.context,
