@@ -3,9 +3,9 @@ import 'dart:ffi' as ffi;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/libsane.dart';
 import 'package:libsane/src/bindings.g.dart';
+import 'package:libsane/src/bus_context.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/queries/init.dart';
-import 'package:libsane/src/sane_bus_context.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 

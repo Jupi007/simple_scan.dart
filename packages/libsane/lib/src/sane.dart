@@ -1,28 +1,32 @@
-import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:libsane/src/isolated_sane.dart';
+import 'package:libsane/src/bus_context.dart';
+import 'package:libsane/src/dylib.dart';
+import 'package:libsane/src/queries/cancel.dart';
+import 'package:libsane/src/queries/close.dart';
+import 'package:libsane/src/queries/control_option.dart';
+import 'package:libsane/src/queries/exit.dart';
+import 'package:libsane/src/queries/get_all_option_descriptors.dart';
+import 'package:libsane/src/queries/get_devices.dart';
+import 'package:libsane/src/queries/get_option_descriptor.dart';
+import 'package:libsane/src/queries/get_parameters.dart';
+import 'package:libsane/src/queries/init.dart';
+import 'package:libsane/src/queries/open.dart';
+import 'package:libsane/src/queries/read.dart';
+import 'package:libsane/src/queries/start.dart';
 import 'package:libsane/src/structures.dart';
-import 'package:libsane/src/sync_sane.dart';
+import 'package:meta/meta.dart';
+import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
 typedef AuthCallback = SANECredentials Function(String resourceName);
 
-abstract interface class SANE {
-  /// Returns a singleton instance of [SANE] that runs in the same isolate
-  /// as the caller.
-  ///
-  /// Note: [SANE.sync] and [SANE.isolated] both return the same singleton.
-  /// The first one you call decides the mode for the entire application.
-  factory SANE.sync() => _instance ??= SyncSANE();
-
-  /// Returns a singleton instance of [SANE] that runs in a separate isolate
-  /// for background processing.
-  ///
-  /// Note: [SANE.sync] and [SANE.isolated] both return the same singleton.
-  /// The first one you call decides the mode for the entire application.
-  factory SANE.isolated() => _instance ??= IsolatedSANE();
-
+class SANE {
+  factory SANE() => _instance ??= SANE._();
+  SANE._();
   static SANE? _instance;
+
+  @visibleForTesting
+  QueryBus? bus;
 
   /// Initializes the SANE library.
   ///
@@ -34,7 +38,12 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_open`](https://sane-project.gitlab.io/standard/api.html#sane-open)
-  FutureOr<SANEVersion> init({AuthCallback? authCallback});
+  SANEVersion init({AuthCallback? authCallback}) {
+    _initBus();
+    final query = InitQuery(authCallback);
+    final response = _handle(query);
+    return response.version;
+  }
 
   /// Disposes the SANE instance.
   ///
@@ -43,7 +52,10 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_exit`](https://sane-project.gitlab.io/standard/api.html#sane-exit)
-  FutureOr<void> exit();
+  void exit() {
+    _handle(const ExitQuery());
+    bus = null;
+  }
 
   /// Queries the list of devices that are available.
   ///
@@ -56,7 +68,11 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_get_devices`](https://sane-project.gitlab.io/standard/api.html#sane-get-devices)
-  FutureOr<List<SANEDevice>> getDevices({bool localOnly = true});
+  List<SANEDevice> getDevices({bool localOnly = true}) {
+    final query = GetDevicesQuery(localOnly);
+    final response = _handle(query);
+    return response.devices;
+  }
 
   /// Establish a connection to a particular device.
   ///
@@ -76,10 +92,14 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_open`](https://sane-project.gitlab.io/standard/api.html#sane-open)
-  FutureOr<SANEHandle> open(String name);
+  SANEHandle open(String name) {
+    final query = OpenQuery(name);
+    final response = _handle(query);
+    return response.handle;
+  }
 
   /// Shortcut for [open] with a [SANEDevice]
-  FutureOr<SANEHandle> openDevice(SANEDevice device) {
+  SANEHandle openDevice(SANEDevice device) {
     return open(device.name);
   }
 
@@ -88,49 +108,85 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_close`](https://sane-project.gitlab.io/standard/api.html#sane-close)
-  FutureOr<void> close(SANEHandle handle);
+  void close(SANEHandle handle) {
+    final query = CloseQuery(handle);
+    _handle(query);
+  }
 
-  FutureOr<SANEOptionDescriptor?> getOptionDescriptor(
+  SANEOptionDescriptor? getOptionDescriptor(
     SANEHandle handle,
     int index,
-  );
+  ) {
+    final query = GetOptionDescriptorQuery(handle, index);
+    final response = _handle(query);
+    return response.optionDescriptor;
+  }
 
-  FutureOr<List<SANEOptionDescriptor>> getAllOptionDescriptors(
+  List<SANEOptionDescriptor> getAllOptionDescriptors(
     SANEHandle handle,
-  );
+  ) {
+    final query = GetAllOptionDescriptorsQuery(handle);
+    final response = _handle(query);
+    return response.optionDescriptors;
+  }
 
-  FutureOr<SANEOptionResult<bool>> controlBoolOption({
+  SANEOptionResult<bool> controlBoolOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
     bool? value,
-  });
+  }) {
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
+    return response.optionResult;
+  }
 
-  FutureOr<SANEOptionResult<int>> controlIntOption({
+  SANEOptionResult<int> controlIntOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
     int? value,
-  });
+  }) {
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
+    return response.optionResult;
+  }
 
-  FutureOr<SANEOptionResult<double>> controlFixedOption({
+  SANEOptionResult<double> controlFixedOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
     double? value,
-  });
+  }) {
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
+    return response.optionResult;
+  }
 
-  FutureOr<SANEOptionResult<String>> controlStringOption({
+  SANEOptionResult<String> controlStringOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
     String? value,
-  });
+  }) {
+    final query = ControlValueOptionQuery(handle, index, action, value);
+    final response = _handle(query);
+    return response.optionResult;
+  }
 
-  FutureOr<SANEOptionResult<Null>> controlButtonOption({
+  SANEOptionResult<Null> controlButtonOption({
     required SANEHandle handle,
     required int index,
-  });
+  }) {
+    final query = ControlValueOptionQuery(
+      handle,
+      index,
+      SANEControlAction.setValue,
+      null,
+    );
+    final response = _handle(query);
+    return response.optionResult;
+  }
 
   /// Obtain the current scan parameters.
   ///
@@ -140,7 +196,11 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_get_parameters`](https://sane-project.gitlab.io/standard/api.html#sane-get-parameters)
-  FutureOr<SANEParameters> getParameters(SANEHandle handle);
+  SANEParameters getParameters(SANEHandle handle) {
+    final query = GetParametersQuery(handle);
+    final response = _handle(query);
+    return response.parameters;
+  }
 
   /// Initiates acquisition of an image from the device.
   ///
@@ -164,7 +224,10 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_start`](https://sane-project.gitlab.io/standard/api.html#sane-start)
-  FutureOr<void> start(SANEHandle handle);
+  void start(SANEHandle handle) {
+    final query = StartQuery(handle);
+    _handle(query);
+  }
 
   /// Reads image data from the device.
   ///
@@ -188,7 +251,11 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_read`](https://sane-project.gitlab.io/standard/api.html#sane-read)
-  FutureOr<Uint8List> read(SANEHandle handle, int bufferSize);
+  Uint8List read(SANEHandle handle, int bufferSize) {
+    final query = SyncReadQuery(handle, bufferSize);
+    final response = _handle(query);
+    return response.bytes;
+  }
 
   /// Tries to cancel the currently pending operation of the device immediately
   /// or as quickly as possible.
@@ -196,5 +263,45 @@ abstract interface class SANE {
   /// See also:
   ///
   /// - [`sane_cancel`](https://sane-project.gitlab.io/standard/api.html#sane-cancel)
-  FutureOr<void> cancel(SANEHandle handle);
+  void cancel(SANEHandle handle) {
+    final query = CancelQuery(handle);
+    _handle(query);
+  }
+
+  void _initBus() {
+    if (bus != null) return;
+    bus = QueryBus(
+      handlers: [
+        InitQueryHandler(dylib),
+        ExitQueryHandler(dylib),
+        GetDevicesQueryHandler(dylib),
+        OpenQueryHandler(dylib),
+        CloseQueryHandler(dylib),
+        GetOptionDescriptorQueryHandler(dylib),
+        GetAllOptionDescriptorsQueryHandler(dylib),
+        ControlValueOptionQueryHandler<bool>(dylib),
+        ControlValueOptionQueryHandler<int>(dylib),
+        ControlValueOptionQueryHandler<double>(dylib),
+        ControlValueOptionQueryHandler<String>(dylib),
+        ControlValueOptionQueryHandler<Null>(dylib),
+        ControlValueOptionQueryHandler(dylib),
+        GetParametersQueryHandler(dylib),
+        StartQueryHandler(dylib),
+        SyncReadQueryHandler(dylib),
+        CancelQueryHandler(dylib),
+      ],
+      context: SANEBusContext(),
+    );
+  }
+
+  T _handle<T extends Response>(
+    Query<T> query,
+  ) {
+    if (bus == null) {
+      throw StateError(
+        'The query bus has not been initialized, please call init() first.',
+      );
+    }
+    return bus!.handle(query);
+  }
 }

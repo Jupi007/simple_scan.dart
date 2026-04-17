@@ -2,10 +2,10 @@ import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:libsane/src/bindings.g.dart';
+import 'package:libsane/src/bus_context.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
-import 'package:libsane/src/sane_bus_context.dart';
 import 'package:libsane/src/structures.dart';
 import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 

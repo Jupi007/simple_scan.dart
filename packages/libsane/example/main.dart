@@ -13,11 +13,11 @@ void main(List<String> args) async {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  final sane = SANE.isolated();
+  final sane = SANE();
 
-  await sane.init();
+  sane.init();
 
-  final devices = await sane.getDevices(localOnly: true);
+  final devices = sane.getDevices(localOnly: true);
   for (final device in devices) {
     print('Device found: ${device.name}');
   }
@@ -27,13 +27,13 @@ void main(List<String> args) async {
   }
 
   final device = devices[1];
-  final handle = await sane.openDevice(device);
+  final handle = sane.openDevice(device);
 
-  final optionDescriptors = await sane.getAllOptionDescriptors(handle);
+  final optionDescriptors = sane.getAllOptionDescriptors(handle);
 
   for (final optionDescriptor in optionDescriptors) {
     if (optionDescriptor.name == saneopts.NAME_SCAN_MODE) {
-      await sane.controlStringOption(
+      sane.controlStringOption(
         handle: handle,
         index: optionDescriptor.index,
         action: SANEControlAction.setValue,
@@ -43,22 +43,22 @@ void main(List<String> args) async {
     }
   }
 
-  await sane.start(handle);
+  sane.start(handle);
 
-  final parameters = await sane.getParameters(handle);
+  final parameters = sane.getParameters(handle);
   print('Parameters: format(${parameters.format}), depth(${parameters.depth})');
 
   final bytesBuilder = BytesBuilder(copy: false);
   while (true) {
-    final bytes = await sane.read(handle, parameters.bytesPerLine);
+    final bytes = sane.read(handle, parameters.bytesPerLine);
     if (bytes.isEmpty) break;
     bytesBuilder.add(bytes);
   }
 
-  await sane.cancel(handle);
-  await sane.close(handle);
+  sane.cancel(handle);
+  sane.close(handle);
 
-  await sane.exit();
+  sane.exit();
 
   final file = File('./output.ppm');
   file.writeAsStringSync(

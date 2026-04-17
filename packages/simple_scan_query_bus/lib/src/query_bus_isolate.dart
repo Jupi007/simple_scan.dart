@@ -6,8 +6,8 @@ import 'package:simple_scan_query_bus/src/query_bus.dart';
 
 typedef QueryBusBuilder = QueryBus Function();
 
-class QueyBusIsolate {
-  QueyBusIsolate._(
+class QueryBusIsolate {
+  QueryBusIsolate._(
     this._isolate,
     this._sendPort,
   );
@@ -15,7 +15,7 @@ class QueyBusIsolate {
   final Isolate _isolate;
   final SendPort _sendPort;
 
-  static Future<QueyBusIsolate> spawn(
+  static Future<QueryBusIsolate> spawn(
     QueryBusBuilder busBuilder,
     Logger logger,
   ) async {
@@ -40,7 +40,7 @@ class QueyBusIsolate {
     });
 
     final sendPort = await sendPortCompleter.future;
-    return QueyBusIsolate._(isolate, sendPort);
+    return QueryBusIsolate._(isolate, sendPort);
   }
 
   Future<void> exit() async {

@@ -1,10 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:libsane/libsane.dart';
+import 'package:simple_scan_linux/src/constants.dart';
+import 'package:simple_scan_linux/src/extensions.dart';
 import 'package:simple_scan_platform_interface/simple_scan_platform_interface.dart';
-
-import 'constants.dart';
-import 'extensions.dart';
 
 abstract class ScanBuffer {
   int get width;
@@ -45,7 +44,7 @@ class FixedScanBuffer extends ScanBuffer {
       _offsetInFrame = 0;
       _previousFrameFormat = frameFormat;
     }
-    // TODO: something wrong here
+
     switch (frameFormat) {
       case SANEFrameFormat.rgb:
         for (var i = 0; i < bytes.length; i++) {
