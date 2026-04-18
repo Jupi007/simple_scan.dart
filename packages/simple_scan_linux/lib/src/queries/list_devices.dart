@@ -24,7 +24,7 @@ class ListDevicesQueryHandler extends QueryHandler<ListDevicesQuery,
   ListDevicesResponse handle(
       ListDevicesQuery query, SimpleScanBusContext context) {
     return ListDevicesResponse(
-      sane.getDevices(localOnly: true).toScanDeviceList(),
+      sane.getDevices(localOnly: false).toScanDeviceList(),
     );
   }
 }
