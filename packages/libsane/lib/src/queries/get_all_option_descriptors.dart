@@ -36,12 +36,11 @@ class GetAllOptionDescriptorsQueryHandler extends QueryHandler<
     final optionDescriptors = <SANEOptionDescriptor>[];
 
     for (var i = 0;; i++) {
+      logger.finest('sane_get_option_descriptor($i)');
       final optionDescriptorPointer = libsane.sane_get_option_descriptor(
         context.nativeHandles.get(query.handle),
         i,
       );
-      logger.finest('sane_get_option_descriptor($i)');
-      // TODO better logging
 
       if (optionDescriptorPointer == ffi.nullptr) break;
       final optionDescriptor =

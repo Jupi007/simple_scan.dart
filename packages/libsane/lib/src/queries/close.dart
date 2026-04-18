@@ -23,8 +23,8 @@ class CloseQueryHandler
   CloseResponse handle(CloseQuery query, SANEBusContext context) {
     if (!context.initialized) throw SANENotInitializedError();
 
-    libsane.sane_close(context.nativeHandles.get(query.handle));
     logger.finest('sane_close()');
+    libsane.sane_close(context.nativeHandles.get(query.handle));
 
     context.nativeHandles.remove(query.handle);
 

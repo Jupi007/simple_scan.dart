@@ -27,10 +27,11 @@ class StartQueryHandler
   ) {
     if (!context.initialized) throw SANENotInitializedError();
 
+    logger.finest('sane_start()');
     final status = libsane.sane_start(
       context.nativeHandles.get(query.handle),
     );
-    logger.finest('sane_start() -> ${status.name}');
+    logger.finest('  -> ${status.name}');
 
     status.check();
 

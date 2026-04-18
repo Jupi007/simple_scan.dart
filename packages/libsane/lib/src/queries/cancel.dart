@@ -23,10 +23,10 @@ class CancelQueryHandler
   CancelResponse handle(CancelQuery query, SANEBusContext context) {
     if (!context.initialized) throw SANENotInitializedError();
 
+    logger.finest('sane_cancel()');
     libsane.sane_cancel(
       context.nativeHandles.get(query.handle),
     );
-    logger.finest('sane_cancel()');
 
     return const CancelResponse();
   }

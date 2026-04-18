@@ -32,8 +32,9 @@ class OpenQueryHandler
     late final SANEHandle handle;
 
     try {
+      logger.finest('sane_open(${query.deviceName})');
       final status = libsane.sane_open(deviceNamePointer, nativeHandlePointer);
-      logger.finest('sane_open(${query.deviceName}) -> ${status.name}');
+      logger.finest('  -> ${status.name}');
 
       status.check();
 

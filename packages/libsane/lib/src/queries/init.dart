@@ -59,8 +59,9 @@ class InitQueryHandler
         context.nativeAuthCallback?.nativeFunction ?? ffi.nullptr;
 
     try {
+      logger.finest('sane_init()');
       final status = libsane.sane_init(versionCodePointer, callbackPtr);
-      logger.finest('sane_init() -> ${status.name}');
+      logger.finest('  -> ${status.name}');
 
       status.check();
 

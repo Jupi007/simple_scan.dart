@@ -35,11 +35,12 @@ class GetDevicesQueryHandler
         ffi.calloc<ffi.Pointer<ffi.Pointer<SANE_Device>>>();
 
     try {
+      logger.finest('sane_get_devices()');
       final status = libsane.sane_get_devices(
         deviceListPointer,
         query.localOnly.toSANEBool(),
       );
-      logger.finest('sane_get_devices() -> ${status.name}');
+      logger.finest('  -> ${status.name}');
 
       status.check();
 

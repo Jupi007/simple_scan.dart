@@ -34,11 +34,12 @@ class GetParametersQueryHandler extends QueryHandler<GetParametersQuery,
     final nativeParametersPointer = ffi.calloc<SANE_Parameters>();
 
     try {
+      logger.finest('sane_get_parameters()');
       final status = libsane.sane_get_parameters(
         context.nativeHandles.get(query.handle),
         nativeParametersPointer,
       );
-      logger.finest('sane_get_parameters() -> ${status.name}');
+      logger.finest('  -> ${status.name}');
       status.check();
 
       final parameters = nativeParametersPointer.ref.toSANEParameters();

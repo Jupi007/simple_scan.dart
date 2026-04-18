@@ -22,8 +22,8 @@ class ExitQueryHandler
     if (!context.initialized) throw SANENotInitializedError();
 
     context.initialized = false;
-    libsane.sane_exit();
     logger.finest('sane_exit()');
+    libsane.sane_exit();
 
     context.nativeHandles.clear();
     context.nativeAuthCallback?.close();

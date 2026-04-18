@@ -1,3 +1,4 @@
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:libsane/libsane.dart';
@@ -16,8 +17,14 @@ class ScanQuery implements Query<ScanResponse> {
 }
 
 class ScanResponse implements Response {
-  const ScanResponse(this.page);
-  final ScanPage page;
+  const ScanResponse(
+    this.bytes,
+    this.width,
+    this.height,
+  );
+  final TransferableTypedData bytes;
+  final int width;
+  final int height;
 }
 
 class ScanQueryHandler
@@ -69,7 +76,13 @@ class ScanQueryHandler
 
     sane.cancel(query.handle);
 
-    return ScanResponse(scanBuffer.toScanPage());
+    return ScanResponse(
+      TransferableTypedData.fromList([
+        scanBuffer.toBytes(),
+      ]),
+      scanBuffer.width,
+      scanBuffer.height,
+    );
   }
 
   void _applyOptions(ScanQuery query) {

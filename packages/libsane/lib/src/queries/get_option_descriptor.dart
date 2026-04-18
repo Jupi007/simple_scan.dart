@@ -31,11 +31,11 @@ class GetOptionDescriptorQueryHandler extends QueryHandler<
   ) {
     if (!context.initialized) throw SANENotInitializedError();
 
+    logger.finest('sane_get_option_descriptor(${query.index})');
     final optionDescriptorPointer = libsane.sane_get_option_descriptor(
       context.nativeHandles.get(query.handle),
       query.index,
     );
-    logger.finest('sane_get_option_descriptor(${query.index})');
 
     if (optionDescriptorPointer == ffi.nullptr) {
       return const GetOptionDescriptorResponse(null);

@@ -64,13 +64,14 @@ Uint8List _read(
   final bufferPointer = ffi.malloc<SANE_Byte>(bufferSize);
 
   try {
+    logger.finest('sane_read($bufferSize)');
     final status = libsane.sane_read(
       context.nativeHandles.get(handle),
       bufferPointer,
       bufferSize,
       lengthPointer,
     );
-    logger.finest('sane_read($bufferSize) -> ${status.name}');
+    logger.finest('  -> ${status.name}');
 
     try {
       status.check();

@@ -19,7 +19,11 @@ final class ScanSessionLinux extends ScanSession {
   Future<ScanPage> scan(ScanOptions options) async {
     _checkIfClosed();
     final response = await isolatedBus.handle(ScanQuery(handle, options));
-    return response.page;
+    return ScanPage(
+      height: response.height,
+      width: response.width,
+      bytes: response.bytes.materialize().asUint8List(),
+    );
   }
 
   Future<void> cancel() async {

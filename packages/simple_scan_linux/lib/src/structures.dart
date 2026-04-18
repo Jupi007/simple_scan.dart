@@ -3,21 +3,12 @@ import 'dart:typed_data';
 import 'package:libsane/libsane.dart';
 import 'package:simple_scan_linux/src/constants.dart';
 import 'package:simple_scan_linux/src/extensions.dart';
-import 'package:simple_scan_platform_interface/simple_scan_platform_interface.dart';
 
 abstract class ScanBuffer {
   int get width;
   int get height;
   void appendBytes(Uint8List bytes, SANEFrameFormat frameFormat);
   Uint8List toBytes();
-
-  ScanPage toScanPage() {
-    return ScanPage(
-      height: height,
-      width: width,
-      bytes: toBytes(),
-    );
-  }
 }
 
 class FixedScanBuffer extends ScanBuffer {

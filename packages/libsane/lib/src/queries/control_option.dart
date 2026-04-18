@@ -86,6 +86,9 @@ class ControlValueOptionQueryHandler<T> extends QueryHandler<
       }
     }
 
+    logger.finest(
+      'sane_control_option(${optionDescriptor.name}(${query.index}), ${query.action}, ${query.value})',
+    );
     final status = libsane.sane_control_option(
       nativeHandle,
       query.index,
@@ -94,7 +97,7 @@ class ControlValueOptionQueryHandler<T> extends QueryHandler<
       infoPointer,
     );
     logger.finest(
-      'sane_control_option(${optionDescriptor.name}(${query.index}), ${query.action}, ${query.value}) -> ${status.name}',
+      '  -> ${status.name}',
     );
 
     status.check();
