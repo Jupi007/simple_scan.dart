@@ -46,33 +46,6 @@ class SyncReadQueryHandler
   }
 }
 
-class IsolateReadQuery extends _ReadQuery<IsolateReadResponse> {
-  const IsolateReadQuery(super.handle, super.bufferSize);
-}
-
-class IsolateReadResponse implements Response {
-  const IsolateReadResponse(this.bytes);
-  final TransferableTypedData bytes;
-}
-
-class IsolateReadQueryHandler extends QueryHandler<IsolateReadQuery,
-    IsolateReadResponse, SANEBusContext> {
-  const IsolateReadQueryHandler(this.libsane);
-  final LibSANE libsane;
-
-  @override
-  IsolateReadResponse handle(
-    IsolateReadQuery query,
-    SANEBusContext context,
-  ) {
-    return IsolateReadResponse(
-      TransferableTypedData.fromList([
-        _read(libsane, context, query.handle, query.bufferSize),
-      ]),
-    );
-  }
-}
-
 Uint8List _read(
   LibSANE libsane,
   SANEBusContext context,
