@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:libsane/src/bus_context.dart';
 import 'package:libsane/src/dylib.dart';
-import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/queries/cancel.dart';
 import 'package:libsane/src/queries/close.dart';
 import 'package:libsane/src/queries/control_option.dart';

@@ -12,8 +12,9 @@ import 'package:simple_scan_platform_interface/simple_scan_platform_interface.da
 import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
 final class SimpleScanLinux extends SimpleScanPlatform {
-  // TODO: singleton
-  SimpleScanLinux();
+  factory SimpleScanLinux() => _instance ??= SimpleScanLinux._();
+  SimpleScanLinux._();
+  static SimpleScanLinux? _instance;
 
   QueryBusIsolate? _isolatedBus;
 
