@@ -75,7 +75,8 @@ class InitQueryHandler
     } finally {
       ffi.calloc.free(versionCodePointer);
       if (!context.initialized) {
-        ffi.calloc.free(callbackPtr);
+        context.nativeAuthCallback?.close();
+        context.nativeAuthCallback = null;
       }
     }
 
