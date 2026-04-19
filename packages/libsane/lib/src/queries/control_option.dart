@@ -53,9 +53,9 @@ class ControlValueOptionQueryHandler<T> extends QueryHandler<
 
     final valuePointer = () {
       return switch (optionType) {
-        SANEOptionValueType.bool => ffi.calloc<SANE_Bool>(optionSize),
-        SANEOptionValueType.int => ffi.calloc<SANE_Int>(optionSize),
-        SANEOptionValueType.fixed => ffi.calloc<SANE_Word>(optionSize),
+        SANEOptionValueType.bool => ffi.calloc<SANE_Bool>(),
+        SANEOptionValueType.int => ffi.calloc<SANE_Int>(),
+        SANEOptionValueType.fixed => ffi.calloc<SANE_Word>(),
         SANEOptionValueType.string => ffi.calloc<SANE_Char>(optionSize),
         SANEOptionValueType.button => ffi.nullptr,
         SANEOptionValueType.group => throw const SANEInvalidDataException(),
@@ -86,51 +86,55 @@ class ControlValueOptionQueryHandler<T> extends QueryHandler<
       }
     }
 
-    logger.finest(
-      'sane_control_option(${optionDescriptor.name}(${query.index}), ${query.action}, ${query.value})',
-    );
-    final status = libsane.sane_control_option(
-      nativeHandle,
-      query.index,
-      query.action.toNativeSANEAction(),
-      valuePointer.cast<ffi.Void>(),
-      infoPointer,
-    );
-    logger.finest(
-      '  -> ${status.name}',
-    );
-
-    status.check();
-
-    final infos = infoPointer.value.toSANEOptionInfoList();
     late final dynamic resultValue;
-    switch (optionType) {
-      case SANEOptionValueType.bool:
-        resultValue =
-            (valuePointer as ffi.Pointer<SANE_Bool>).value.toDartBool();
+    late final List<SANEOptionInfo> infos;
 
-      case SANEOptionValueType.int:
-        resultValue = (valuePointer as ffi.Pointer<SANE_Int>).value;
+    try {
+      logger.finest(
+        'sane_control_option(${optionDescriptor.name}(${query.index}), ${query.action}, ${query.value})',
+      );
+      final status = libsane.sane_control_option(
+        nativeHandle,
+        query.index,
+        query.action.toNativeSANEAction(),
+        valuePointer.cast<ffi.Void>(),
+        infoPointer,
+      );
+      logger.finest(
+        '  -> ${status.name}',
+      );
 
-      case SANEOptionValueType.fixed:
-        resultValue =
-            (valuePointer as ffi.Pointer<SANE_Word>).value.toDartDouble();
+      status.check();
 
-      case SANEOptionValueType.string:
-        resultValue = (valuePointer as ffi.Pointer<SANE_Char>).toDartString();
+      switch (optionType) {
+        case SANEOptionValueType.bool:
+          resultValue =
+              (valuePointer as ffi.Pointer<SANE_Bool>).value.toDartBool();
 
-      case SANEOptionValueType.button:
-        resultValue = null;
+        case SANEOptionValueType.int:
+          resultValue = (valuePointer as ffi.Pointer<SANE_Int>).value;
 
-      default:
-        throw const SANEInvalidDataException();
+        case SANEOptionValueType.fixed:
+          resultValue =
+              (valuePointer as ffi.Pointer<SANE_Word>).value.toDartDouble();
+
+        case SANEOptionValueType.string:
+          resultValue = (valuePointer as ffi.Pointer<SANE_Char>).toDartString();
+
+        case SANEOptionValueType.button:
+          resultValue = null;
+
+        default:
+          throw const SANEInvalidDataException();
+      }
+      infos = infoPointer.value.toSANEOptionInfoList();
+      logger.finest(
+        '  -> $resultValue, $infos',
+      );
+    } finally {
+      ffi.calloc.free(valuePointer);
+      ffi.calloc.free(infoPointer);
     }
-    logger.finest(
-      '  -> $resultValue, $infos',
-    );
-
-    ffi.calloc.free(valuePointer);
-    ffi.calloc.free(infoPointer);
 
     return ControlValueOptionResponse(
       SANEOptionResult(

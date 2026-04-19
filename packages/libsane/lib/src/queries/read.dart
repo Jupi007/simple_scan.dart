@@ -89,6 +89,9 @@ Uint8List _read(
 
   final lengthPointer = ffi.malloc<SANE_Int>();
   final bufferPointer = ffi.malloc<SANE_Byte>(bufferSize);
+  var freeBufferPointer = true;
+
+  late final Uint8List buffer;
 
   try {
     logger.finest('sane_read($bufferSize)');
@@ -106,14 +109,21 @@ Uint8List _read(
       return Uint8List.fromList([]);
     }
 
-    return bufferPointer
+    buffer = bufferPointer
         .cast<ffi.Uint8>()
         .asTypedList(
           lengthPointer.value,
           finalizer: freePointer,
         )
         .asUnmodifiableView();
+
+    freeBufferPointer = false;
   } finally {
     ffi.malloc.free(lengthPointer);
+    if (freeBufferPointer) {
+      ffi.malloc.free(bufferPointer);
+    }
   }
+
+  return buffer;
 }

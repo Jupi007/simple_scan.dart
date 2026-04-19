@@ -58,6 +58,8 @@ class InitQueryHandler
     final callbackPtr =
         context.nativeAuthCallback?.nativeFunction ?? ffi.nullptr;
 
+    late final SANEVersion version;
+
     try {
       logger.finest('sane_init()');
       final status = libsane.sane_init(versionCodePointer, callbackPtr);
@@ -66,14 +68,17 @@ class InitQueryHandler
       status.check();
 
       final versionCode = versionCodePointer.value;
-      final version = SANEVersion.fromCode(versionCode);
+      version = SANEVersion.fromCode(versionCode);
       logger.finest('SANE version: $version');
 
       context.initialized = true;
-
-      return InitResponse(version);
     } finally {
       ffi.calloc.free(versionCodePointer);
+      if (!context.initialized) {
+        ffi.calloc.free(callbackPtr);
+      }
     }
+
+    return InitResponse(version);
   }
 }
