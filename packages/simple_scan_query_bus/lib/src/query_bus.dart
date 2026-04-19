@@ -2,24 +2,20 @@ class BusContext {}
 
 class QueryBus {
   QueryBus({
-    required this.handlers,
+    required List<QueryHandler> handlers,
     required this.context,
-  });
+  }) {
+    for (var handler in handlers) {
+      _handlers[handler.queryType] = handler;
+    }
+  }
 
-  final List<QueryHandler> handlers;
+  final Map<Type, QueryHandler> _handlers = {};
   final BusContext context;
 
-  R handle<R extends Response>(
-    Query<R> query,
-  ) {
-    final handler = handlers.firstWhere(
-      (handler) {
-        return handler.queryType == query.runtimeType;
-      },
-      orElse: () => throw StateError(
-        'No handler registered for query type: ${query.runtimeType}',
-      ),
-    );
+  R handle<R extends Response>(Query<R> query) {
+    final handler = _handlers[query.runtimeType] ??
+        (throw StateError('No handler for ${query.runtimeType}'));
     return handler.handle(query, context) as R;
   }
 }
