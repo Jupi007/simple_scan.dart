@@ -162,12 +162,13 @@ void main() {
         'test',
       );
       final response = handler.handle(query, context);
-      expect(response.optionResult.value, equals('test'));
+      expect(response.optionResult!.value, equals('test'));
 
       ffi.calloc.free(descriptorPointer);
       ffi.calloc.free(nativeHandle);
     });
 
     // TODO: test get/set, with all value types, with overflow, etc.
+    // TODO: test null return on invalid option index
   });
 }

@@ -114,7 +114,7 @@ class SANESync {
     return response.optionDescriptors;
   }
 
-  SANEOptionResult<bool> controlBoolOption({
+  SANEOptionResult<bool>? controlBoolOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -125,7 +125,7 @@ class SANESync {
     return response.optionResult;
   }
 
-  SANEOptionResult<int> controlIntOption({
+  SANEOptionResult<int>? controlIntOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -136,7 +136,7 @@ class SANESync {
     return response.optionResult;
   }
 
-  SANEOptionResult<double> controlFixedOption({
+  SANEOptionResult<double>? controlFixedOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -147,7 +147,7 @@ class SANESync {
     return response.optionResult;
   }
 
-  SANEOptionResult<String> controlStringOption({
+  SANEOptionResult<String>? controlStringOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -158,7 +158,7 @@ class SANESync {
     return response.optionResult;
   }
 
-  SANEOptionResult<Null> controlButtonOption({
+  SANEOptionResult<Null>? controlButtonOption({
     required SANEHandle handle,
     required int index,
   }) {

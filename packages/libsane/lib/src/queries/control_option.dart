@@ -26,7 +26,7 @@ class ControlValueOptionQuery<T>
 
 class ControlValueOptionResponse<T> implements Response {
   const ControlValueOptionResponse(this.optionResult);
-  final SANEOptionResult<T> optionResult;
+  final SANEOptionResult<T>? optionResult;
 }
 
 class ControlValueOptionQueryHandler<T> extends QueryHandler<
@@ -42,9 +42,14 @@ class ControlValueOptionQueryHandler<T> extends QueryHandler<
     if (!context.initialized) throw SANENotInitializedError();
 
     final nativeHandle = context.nativeHandles.get(query.handle);
-    final optionDescriptor = libsane
-        .sane_get_option_descriptor(nativeHandle, query.index)
-        .ref
+    final optionDescriptorPointer =
+        libsane.sane_get_option_descriptor(nativeHandle, query.index);
+
+    if (optionDescriptorPointer == ffi.nullptr) {
+      return ControlValueOptionResponse(null);
+    }
+
+    final optionDescriptor = optionDescriptorPointer.ref
         .toSANEOptionDescriptorWithIndex(query.index);
     final optionType = optionDescriptor.type;
     final optionSize = optionDescriptor.size;

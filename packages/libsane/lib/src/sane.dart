@@ -164,7 +164,7 @@ class SANE {
     return response.optionDescriptors;
   }
 
-  Future<SANEOptionResult<bool>> controlBoolOption({
+  Future<SANEOptionResult<bool>?> controlBoolOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -175,7 +175,7 @@ class SANE {
     return response.optionResult;
   }
 
-  Future<SANEOptionResult<int>> controlIntOption({
+  Future<SANEOptionResult<int>?> controlIntOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -186,7 +186,7 @@ class SANE {
     return response.optionResult;
   }
 
-  Future<SANEOptionResult<double>> controlFixedOption({
+  Future<SANEOptionResult<double>?> controlFixedOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -197,7 +197,7 @@ class SANE {
     return response.optionResult;
   }
 
-  Future<SANEOptionResult<String>> controlStringOption({
+  Future<SANEOptionResult<String>?> controlStringOption({
     required SANEHandle handle,
     required int index,
     required SANEControlAction action,
@@ -208,7 +208,7 @@ class SANE {
     return response.optionResult;
   }
 
-  Future<SANEOptionResult<Null>> controlButtonOption({
+  Future<SANEOptionResult<Null>?> controlButtonOption({
     required SANEHandle handle,
     required int index,
   }) async {
