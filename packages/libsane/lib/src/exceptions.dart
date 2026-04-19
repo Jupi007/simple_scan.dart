@@ -6,7 +6,7 @@ import 'package:libsane/src/dylib.dart';
 ///
 /// See also:
 ///
-/// - [SANEEofException]
+/// - [SANEEOFException]
 /// - [SANEJammedException]
 /// - [SANEDeviceBusyException]
 /// - [SANEInvalidDataException]
@@ -28,7 +28,7 @@ sealed class SANEException implements Exception {
       SANE_Status.STATUS_CANCELLED => const SANECancelledException(),
       SANE_Status.STATUS_DEVICE_BUSY => const SANEDeviceBusyException(),
       SANE_Status.STATUS_INVAL => const SANEInvalidDataException(),
-      SANE_Status.STATUS_EOF => const SANEEofException(),
+      SANE_Status.STATUS_EOF => const SANEEOFException(),
       SANE_Status.STATUS_JAMMED => const SANEJammedException(),
       SANE_Status.STATUS_NO_DOCS => const SANENoDocumentsException(),
       SANE_Status.STATUS_COVER_OPEN => const SANECoverOpenException(),
@@ -60,8 +60,8 @@ sealed class SANEException implements Exception {
 /// See also:
 ///
 /// - <https://sane-project.gitlab.io/standard/api.html#tab-status>
-final class SANEEofException extends SANEException {
-  const SANEEofException() : super._();
+final class SANEEOFException extends SANEException {
+  const SANEEOFException() : super._();
 
   @override
   SANE_Status get _status => SANE_Status.STATUS_EOF;

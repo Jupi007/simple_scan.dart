@@ -74,7 +74,7 @@ Uint8List _read(
 
     try {
       status.check();
-    } on SANEEofException catch (_) {
+    } on SANEEOFException catch (_) {
       return Uint8List.fromList([]);
     }
 
