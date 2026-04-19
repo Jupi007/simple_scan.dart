@@ -122,7 +122,7 @@ List<SANEOptionCapability> _saneOptionCapabilityFromBitset(int bitset) {
 }
 
 SANEOptionConstraint? _saneConstraintFromNative(
-  UnnamedUnion1 constraint,
+  UnnamedUnion constraint,
   SANE_Constraint_Type constraintType,
   SANEOptionValueType valueType,
 ) {
