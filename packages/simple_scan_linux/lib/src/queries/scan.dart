@@ -279,7 +279,7 @@ class ScanQueryHandler
           optionDescriptor.constraint as SANEOptionConstraintRange;
       final quantization = constraint.quant;
 
-      value.clamp(constraint.min, constraint.max);
+      value = value.clamp(constraint.min, constraint.max);
       if (quantization > 0) {
         final steps = (value / quantization).round();
         value = quantization * steps;
