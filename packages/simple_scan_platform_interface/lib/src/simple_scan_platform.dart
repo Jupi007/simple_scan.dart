@@ -1,6 +1,8 @@
 import 'structures.dart';
 
 abstract base class SimpleScanPlatform {
+  const SimpleScanPlatform();
+
   static SimpleScanPlatform? _instance;
 
   static SimpleScanPlatform get instance {
@@ -32,6 +34,8 @@ abstract base class SimpleScanPlatform {
 }
 
 abstract base class ScanSession {
+  const ScanSession();
+
   Future<ScanPage> scan(ScanOptions options) {
     throw UnimplementedError('scan() has not been implemented.');
   }

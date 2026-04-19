@@ -16,18 +16,39 @@ import 'package:libsane/src/queries/open.dart';
 import 'package:libsane/src/queries/read.dart';
 import 'package:libsane/src/queries/start.dart';
 import 'package:libsane/src/structures.dart';
-import 'package:meta/meta.dart';
 import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
 typedef AuthCallback = SANECredentials Function(String resourceName);
 
 class SANE {
   factory SANE() => _instance ??= SANE._();
-  SANE._();
+  SANE._()
+      : _bus = QueryBus(
+          handlers: _handlers,
+          contextBuilder: SANEBusContext.new,
+        );
   static SANE? _instance;
 
-  @visibleForTesting
-  QueryBus? bus;
+  final QueryBus _bus;
+  static final _handlers = <QueryHandler>[
+    InitQueryHandler(dylib),
+    ExitQueryHandler(dylib),
+    GetDevicesQueryHandler(dylib),
+    OpenQueryHandler(dylib),
+    CloseQueryHandler(dylib),
+    GetOptionDescriptorQueryHandler(dylib),
+    GetAllOptionDescriptorsQueryHandler(dylib),
+    ControlValueOptionQueryHandler<bool>(dylib),
+    ControlValueOptionQueryHandler<int>(dylib),
+    ControlValueOptionQueryHandler<double>(dylib),
+    ControlValueOptionQueryHandler<String>(dylib),
+    ControlValueOptionQueryHandler<Null>(dylib),
+    ControlValueOptionQueryHandler(dylib),
+    GetParametersQueryHandler(dylib),
+    StartQueryHandler(dylib),
+    SyncReadQueryHandler(dylib),
+    CancelQueryHandler(dylib),
+  ];
 
   /// Initializes the SANE library.
   ///
@@ -40,9 +61,8 @@ class SANE {
   ///
   /// - [`sane_open`](https://sane-project.gitlab.io/standard/api.html#sane-open)
   SANEVersion init({AuthCallback? authCallback}) {
-    _initBus();
     final query = InitQuery(authCallback);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.version;
   }
 
@@ -54,8 +74,8 @@ class SANE {
   ///
   /// - [`sane_exit`](https://sane-project.gitlab.io/standard/api.html#sane-exit)
   void exit() {
-    _handle(const ExitQuery());
-    bus = null;
+    _bus.handle(const ExitQuery());
+    _bus.resetContext();
   }
 
   /// Queries the list of devices that are available.
@@ -71,7 +91,7 @@ class SANE {
   /// - [`sane_get_devices`](https://sane-project.gitlab.io/standard/api.html#sane-get-devices)
   List<SANEDevice> getDevices({bool localOnly = true}) {
     final query = GetDevicesQuery(localOnly);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.devices;
   }
 
@@ -95,7 +115,7 @@ class SANE {
   /// - [`sane_open`](https://sane-project.gitlab.io/standard/api.html#sane-open)
   SANEHandle open(String name) {
     final query = OpenQuery(name);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.handle;
   }
 
@@ -111,7 +131,7 @@ class SANE {
   /// - [`sane_close`](https://sane-project.gitlab.io/standard/api.html#sane-close)
   void close(SANEHandle handle) {
     final query = CloseQuery(handle);
-    _handle(query);
+    _bus.handle(query);
   }
 
   SANEOptionDescriptor? getOptionDescriptor(
@@ -119,7 +139,7 @@ class SANE {
     int index,
   ) {
     final query = GetOptionDescriptorQuery(handle, index);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.optionDescriptor;
   }
 
@@ -127,7 +147,7 @@ class SANE {
     SANEHandle handle,
   ) {
     final query = GetAllOptionDescriptorsQuery(handle);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.optionDescriptors;
   }
 
@@ -138,7 +158,7 @@ class SANE {
     bool? value,
   }) {
     final query = ControlValueOptionQuery(handle, index, action, value);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.optionResult;
   }
 
@@ -149,7 +169,7 @@ class SANE {
     int? value,
   }) {
     final query = ControlValueOptionQuery(handle, index, action, value);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.optionResult;
   }
 
@@ -160,7 +180,7 @@ class SANE {
     double? value,
   }) {
     final query = ControlValueOptionQuery(handle, index, action, value);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.optionResult;
   }
 
@@ -171,7 +191,7 @@ class SANE {
     String? value,
   }) {
     final query = ControlValueOptionQuery(handle, index, action, value);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.optionResult;
   }
 
@@ -185,7 +205,7 @@ class SANE {
       SANEControlAction.setValue,
       null,
     );
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.optionResult;
   }
 
@@ -199,7 +219,7 @@ class SANE {
   /// - [`sane_get_parameters`](https://sane-project.gitlab.io/standard/api.html#sane-get-parameters)
   SANEParameters getParameters(SANEHandle handle) {
     final query = GetParametersQuery(handle);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.parameters;
   }
 
@@ -227,7 +247,7 @@ class SANE {
   /// - [`sane_start`](https://sane-project.gitlab.io/standard/api.html#sane-start)
   void start(SANEHandle handle) {
     final query = StartQuery(handle);
-    _handle(query);
+    _bus.handle(query);
   }
 
   /// Reads image data from the device.
@@ -254,7 +274,7 @@ class SANE {
   /// - [`sane_read`](https://sane-project.gitlab.io/standard/api.html#sane-read)
   Uint8List read(SANEHandle handle, int bufferSize) {
     final query = SyncReadQuery(handle, bufferSize);
-    final response = _handle(query);
+    final response = _bus.handle(query);
     return response.bytes;
   }
 
@@ -266,43 +286,6 @@ class SANE {
   /// - [`sane_cancel`](https://sane-project.gitlab.io/standard/api.html#sane-cancel)
   void cancel(SANEHandle handle) {
     final query = CancelQuery(handle);
-    _handle(query);
-  }
-
-  void _initBus() {
-    if (bus != null) return;
-    bus = QueryBus(
-      handlers: [
-        InitQueryHandler(dylib),
-        ExitQueryHandler(dylib),
-        GetDevicesQueryHandler(dylib),
-        OpenQueryHandler(dylib),
-        CloseQueryHandler(dylib),
-        GetOptionDescriptorQueryHandler(dylib),
-        GetAllOptionDescriptorsQueryHandler(dylib),
-        ControlValueOptionQueryHandler<bool>(dylib),
-        ControlValueOptionQueryHandler<int>(dylib),
-        ControlValueOptionQueryHandler<double>(dylib),
-        ControlValueOptionQueryHandler<String>(dylib),
-        ControlValueOptionQueryHandler<Null>(dylib),
-        ControlValueOptionQueryHandler(dylib),
-        GetParametersQueryHandler(dylib),
-        StartQueryHandler(dylib),
-        SyncReadQueryHandler(dylib),
-        CancelQueryHandler(dylib),
-      ],
-      context: SANEBusContext(),
-    );
-  }
-
-  T _handle<T extends Response>(
-    Query<T> query,
-  ) {
-    if (bus == null) {
-      throw StateError(
-        'The query bus has not been initialized, please call init() first.',
-      );
-    }
-    return bus!.handle(query);
+    _bus.handle(query);
   }
 }

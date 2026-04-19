@@ -29,6 +29,8 @@ final class SimpleScanLinux extends SimpleScanPlatform {
 
   Future<void> dispose() async {
     await _handle(ExitQuery());
+    await isolatedBus!.exit();
+    isolatedBus = null;
   }
 
   Future<List<ScanDevice>> listDevices() async {
@@ -65,7 +67,7 @@ final class SimpleScanLinux extends SimpleScanPlatform {
             CancelQueryHandler(sane),
             CloseQueryHandler(sane),
           ],
-          context: SimpleScanBusContext(),
+          contextBuilder: SimpleScanBusContext.new,
         );
       },
       Logger('simple_scan.isolate'),
