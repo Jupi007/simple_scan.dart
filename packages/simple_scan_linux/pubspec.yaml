@@ -12,6 +12,5 @@ environment:
 dependencies:
   libsane: ^0.1.0
   logging: ^1.3.0
-  meta: ^1.16.0
   simple_scan_platform_interface: ^0.1.0
   simple_scan_query_bus: ^0.1.0

@@ -14,7 +14,7 @@ class CloseResponse implements Response {
 class CloseQueryHandler
     extends QueryHandler<CloseQuery, CloseResponse, SimpleScanBusContext> {
   const CloseQueryHandler(this.sane);
-  final SANE sane;
+  final SANESync sane;
 
   @override
   CloseResponse handle(CloseQuery query, SimpleScanBusContext context) {

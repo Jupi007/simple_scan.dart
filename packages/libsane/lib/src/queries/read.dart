@@ -1,4 +1,5 @@
 import 'dart:ffi' as ffi;
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart' as ffi;
@@ -41,6 +42,33 @@ class SyncReadQueryHandler
   ) {
     return SyncReadResponse(
       _read(libsane, context, query.handle, query.bufferSize),
+    );
+  }
+}
+
+class IsolateReadQuery extends _ReadQuery<IsolateReadResponse> {
+  const IsolateReadQuery(super.handle, super.bufferSize);
+}
+
+class IsolateReadResponse implements Response {
+  const IsolateReadResponse(this.bytes);
+  final TransferableTypedData bytes;
+}
+
+class IsolateReadQueryHandler extends QueryHandler<IsolateReadQuery,
+    IsolateReadResponse, SANEBusContext> {
+  const IsolateReadQueryHandler(this.libsane);
+  final LibSANE libsane;
+
+  @override
+  IsolateReadResponse handle(
+    IsolateReadQuery query,
+    SANEBusContext context,
+  ) {
+    return IsolateReadResponse(
+      TransferableTypedData.fromList([
+        _read(libsane, context, query.handle, query.bufferSize),
+      ]),
     );
   }
 }

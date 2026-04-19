@@ -15,25 +15,25 @@ void main(List<String> args) async {
 
   final sane = SANE();
 
-  sane.init();
+  final sync = SANESync();
+  sync.init();
 
-  final devices = sane.getDevices(localOnly: true);
-  for (final device in devices) {
-    print('Device found: ${device.name}');
-  }
+  await sane.init();
+
+  final devices = await sane.getDevices(localOnly: true);
   if (devices.isEmpty) {
     print('No device found');
     return;
   }
 
   final device = devices[1];
-  final handle = sane.openDevice(device);
+  final handle = await sane.openDevice(device);
 
-  final optionDescriptors = sane.getAllOptionDescriptors(handle);
+  final optionDescriptors = await sane.getAllOptionDescriptors(handle);
 
   for (final optionDescriptor in optionDescriptors) {
     if (optionDescriptor.name == saneopts.NAME_SCAN_MODE) {
-      sane.controlStringOption(
+      await sane.controlStringOption(
         handle: handle,
         index: optionDescriptor.index,
         action: SANEControlAction.setValue,
@@ -43,22 +43,22 @@ void main(List<String> args) async {
     }
   }
 
-  sane.start(handle);
+  await sane.start(handle);
 
-  final parameters = sane.getParameters(handle);
+  final parameters = await sane.getParameters(handle);
   print('Parameters: format(${parameters.format}), depth(${parameters.depth})');
 
   final bytesBuilder = BytesBuilder(copy: false);
   while (true) {
-    final bytes = sane.read(handle, parameters.bytesPerLine);
+    final bytes = await sane.read(handle, parameters.bytesPerLine);
     if (bytes.isEmpty) break;
     bytesBuilder.add(bytes);
   }
 
-  sane.cancel(handle);
-  sane.close(handle);
+  // await sane.cancel(handle);
+  await sane.close(handle);
 
-  sane.exit();
+  await sane.exit();
 
   final file = File('./output.ppm');
   file.writeAsStringSync(

@@ -30,7 +30,7 @@ class ScanResponse implements Response {
 class ScanQueryHandler
     extends QueryHandler<ScanQuery, ScanResponse, SimpleScanBusContext> {
   const ScanQueryHandler(this.sane);
-  final SANE sane;
+  final SANESync sane;
 
   @override
   ScanResponse handle(ScanQuery query, SimpleScanBusContext context) {

@@ -1,4 +1,4 @@
-import 'package:libsane/src/sane.dart';
+import 'package:libsane/libsane.dart';
 import 'package:simple_scan_linux/src/simple_scan.dart';
 import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 
@@ -13,7 +13,7 @@ class ExitResponse implements Response {
 class ExitQueryHandler
     extends QueryHandler<ExitQuery, ExitResponse, SimpleScanBusContext> {
   const ExitQueryHandler(this.sane);
-  final SANE sane;
+  final SANESync sane;
 
   @override
   ExitResponse handle(ExitQuery query, SimpleScanBusContext context) {

@@ -1,4 +1,4 @@
-import 'package:libsane/src/sane.dart';
+import 'package:libsane/libsane.dart';
 import 'package:simple_scan_linux/src/extensions.dart';
 import 'package:simple_scan_linux/src/simple_scan.dart';
 import 'package:simple_scan_platform_interface/simple_scan_platform_interface.dart';
@@ -18,7 +18,7 @@ class ListDevicesResponse implements Response {
 class ListDevicesQueryHandler extends QueryHandler<ListDevicesQuery,
     ListDevicesResponse, SimpleScanBusContext> {
   const ListDevicesQueryHandler(this.sane);
-  final SANE sane;
+  final SANESync sane;
 
   @override
   ListDevicesResponse handle(

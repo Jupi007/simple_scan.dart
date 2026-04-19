@@ -10,13 +10,12 @@ import 'package:simple_scan_linux/src/queries/open_session.dart';
 import 'package:simple_scan_linux/src/queries/scan.dart';
 import 'package:simple_scan_platform_interface/simple_scan_platform_interface.dart';
 import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
-import 'package:meta/meta.dart';
 
 final class SimpleScanLinux extends SimpleScanPlatform {
+  // TODO: singleton
   SimpleScanLinux();
 
-  @visibleForTesting
-  QueryBusIsolate? isolatedBus;
+  QueryBusIsolate? _isolatedBus;
 
   static void registerWith() {
     SimpleScanPlatform.instance = SimpleScanLinux();
@@ -29,8 +28,8 @@ final class SimpleScanLinux extends SimpleScanPlatform {
 
   Future<void> dispose() async {
     await _handle(ExitQuery());
-    await isolatedBus!.exit();
-    isolatedBus = null;
+    await _isolatedBus!.exit();
+    _isolatedBus = null;
   }
 
   Future<List<ScanDevice>> listDevices() async {
@@ -44,19 +43,19 @@ final class SimpleScanLinux extends SimpleScanPlatform {
     // TODO error handling
 
     return ScanSessionLinux(
-      isolatedBus: isolatedBus!,
+      isolatedBus: _isolatedBus!,
       handle: response.handle,
     );
   }
 
   Future<void> _initBus() async {
-    if (isolatedBus != null) {
+    if (_isolatedBus != null) {
       return;
     }
 
-    isolatedBus = await QueryBusIsolate.spawn(
+    _isolatedBus = await QueryBusIsolate.spawn(
       () {
-        final sane = new SANE();
+        final sane = new SANESync();
         return QueryBus(
           handlers: [
             InitQueryHandler(sane),
@@ -77,12 +76,12 @@ final class SimpleScanLinux extends SimpleScanPlatform {
   Future<T> _handle<T extends Response>(
     Query<T> query,
   ) async {
-    if (isolatedBus == null) {
+    if (_isolatedBus == null) {
       throw StateError(
         'The isolated query bus has not been initialized, please call _initBus() first.',
       );
     }
-    return await isolatedBus!.handle(query);
+    return await _isolatedBus!.handle(query);
   }
 }
 

@@ -6,7 +6,7 @@ import 'package:libsane/src/bus_context.dart';
 import 'package:libsane/src/exceptions.dart';
 import 'package:libsane/src/extensions.dart';
 import 'package:libsane/src/logger.dart';
-import 'package:libsane/src/sane.dart';
+import 'package:libsane/src/sane_sync.dart';
 import 'package:libsane/src/structures.dart';
 import 'package:simple_scan_query_bus/simple_scan_query_bus.dart';
 

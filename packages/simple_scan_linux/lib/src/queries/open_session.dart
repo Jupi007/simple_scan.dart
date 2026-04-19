@@ -19,7 +19,7 @@ class OpenSessionResponse implements Response {
 class OpenSessionQueryHandler extends QueryHandler<OpenSessionQuery,
     OpenSessionResponse, SimpleScanBusContext> {
   const OpenSessionQueryHandler(this.sane);
-  final SANE sane;
+  final SANESync sane;
 
   @override
   OpenSessionResponse handle(

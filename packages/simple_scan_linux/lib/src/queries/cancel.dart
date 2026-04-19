@@ -14,7 +14,7 @@ class CancelResponse implements Response {
 class CancelQueryHandler
     extends QueryHandler<CancelQuery, CancelResponse, SimpleScanBusContext> {
   const CancelQueryHandler(this.sane);
-  final SANE sane;
+  final SANESync sane;
 
   @override
   CancelResponse handle(CancelQuery query, SimpleScanBusContext context) {
