@@ -18,10 +18,10 @@ extension NativeSANEDeviceExtension on SANE_Device {
   /// Convert native [SANE_Device] to [SANEDevice].
   SANEDevice toSANEDevice() {
     return SANEDevice(
-      name: name.toDartString(),
-      vendor: vendor.toDartString(),
-      model: model.toDartString(),
-      type: type.toDartString(),
+      name: name.toDartString()!,
+      vendor: vendor.toDartString()!,
+      model: model.toDartString()!,
+      type: type.toDartString()!,
     );
   }
 }
@@ -172,7 +172,7 @@ SANEOptionConstraint? _saneConstraintFromNative(
       final stringList = <String>[];
       for (var i = 0; constraint.string_list[i] != ffi.nullptr; i++) {
         final string = constraint.string_list[i].toDartString();
-        stringList.add(string);
+        stringList.add(string!);
       }
       return SANEOptionConstraintStringList(stringList: stringList);
   }
@@ -183,9 +183,9 @@ extension SANEOptionDescriptorExtension on SANE_Option_Descriptor {
   SANEOptionDescriptor toSANEOptionDescriptorWithIndex(int index) {
     return SANEOptionDescriptor(
       index: index,
-      name: name.toDartString(),
-      title: title.toDartString(),
-      description: desc.toDartString(),
+      name: name.toDartString()!,
+      title: title.toDartString()!,
+      description: desc.toDartString()!,
       type: type.toSANEOptionValueType(),
       unit: unit.toSANEOptionUnit(),
       size: size,
@@ -247,8 +247,8 @@ extension DoubleExtension on double {
 }
 
 extension SANEStringExtension on SANE_String_Const {
-  String toDartString() =>
-      this == ffi.nullptr ? '' : cast<ffi.Utf8>().toDartString();
+  String? toDartString() =>
+      this == ffi.nullptr ? null : cast<ffi.Utf8>().toDartString();
 }
 
 extension StringExtension on String {

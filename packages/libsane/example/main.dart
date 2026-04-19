@@ -15,9 +15,6 @@ void main(List<String> args) async {
 
   final sane = SANE();
 
-  final sync = SANESync();
-  sync.init();
-
   await sane.init();
 
   final devices = await sane.getDevices(localOnly: true);

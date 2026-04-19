@@ -171,9 +171,9 @@ class SANEOptionDescriptor {
   });
 
   final int index;
-  final String? name;
-  final String? title;
-  final String? description;
+  final String name;
+  final String title;
+  final String description;
   final SANEOptionValueType type;
   final SANEOptionUnit unit;
   final int size;
